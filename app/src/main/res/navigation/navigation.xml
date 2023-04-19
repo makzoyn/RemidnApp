@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/remindFragment">
+
+    <fragment
+        android:id="@+id/addFragment"
+        android:name="com.example.reminderapp.ui.add.AddFragment"
+        android:label="fragment_add"
+        tools:layout="@layout/fragment_add" >
+        <action
+            android:id="@+id/action_addFragment_to_remindFragment"
+            app:destination="@id/remindFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/remindFragment"
+        android:name="com.example.reminderapp.ui.remind.RemindFragment"
+        android:label="fragment_remind"
+        tools:layout="@layout/fragment_remind" >
+        <action
+            android:id="@+id/action_remindFragment_to_editFragment"
+            app:destination="@id/editFragment" />
+        <action
+            android:id="@+id/action_remindFragment_to_addFragment"
+            app:destination="@id/addFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editFragment"
+        android:name="com.example.reminderapp.ui.update.EditFragment"
+        android:label="fragment_edit"
+        tools:layout="@layout/fragment_edit" >
+        <action
+            android:id="@+id/action_editFragment_to_remindFragment"
+            app:destination="@id/remindFragment" />
+    </fragment>
+</navigation>
