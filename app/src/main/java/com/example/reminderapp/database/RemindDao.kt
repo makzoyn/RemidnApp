@@ -18,6 +18,6 @@ interface RemindDao {
     @Query("DELETE FROM reminds_table")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM reminds_table ORDER BY date DESC")
+    @Query("SELECT * FROM reminds_table ORDER BY date ASC, time ASC")
     fun getAllReminds() : LiveData<List<RemindEntry>>
 }

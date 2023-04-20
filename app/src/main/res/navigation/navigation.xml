@@ -6,25 +6,24 @@
     app:startDestination="@id/remindFragment">
 
     <fragment
-        android:id="@+id/addFragment"
-        android:name="com.example.reminderapp.ui.add.AddFragment"
-        android:label="fragment_add"
-        tools:layout="@layout/fragment_add" >
-        <action
-            android:id="@+id/action_addFragment_to_remindFragment"
-            app:destination="@id/remindFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/remindFragment"
         android:name="com.example.reminderapp.ui.remind.RemindFragment"
         android:label="fragment_remind"
         tools:layout="@layout/fragment_remind" >
         <action
             android:id="@+id/action_remindFragment_to_editFragment"
-            app:destination="@id/editFragment" />
+            app:destination="@id/editFragment"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right"
+            app:popEnterAnim="@anim/from_right"
+            app:popExitAnim="@anim/to_left" />
         <action
             android:id="@+id/action_remindFragment_to_addFragment"
-            app:destination="@id/addFragment" />
+            app:destination="@id/addFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/editFragment"
@@ -33,6 +32,25 @@
         tools:layout="@layout/fragment_edit" >
         <action
             android:id="@+id/action_editFragment_to_remindFragment"
-            app:destination="@id/remindFragment" />
+            app:destination="@id/remindFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="remindEntry"
+            app:argType="com.example.reminderapp.database.RemindEntry" />
     </fragment>
+    <fragment
+        android:id="@+id/addFragment"
+        android:name="com.example.reminderapp.ui.add.AddFragment"
+        android:label="fragment_add"
+        tools:layout="@layout/fragment_add" >
+        <action
+            android:id="@+id/action_addFragment_to_remindFragment"
+            app:destination="@id/remindFragment"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right"
+            app:popUpToInclusive="true" />
+    </fragment>
+
 </navigation>

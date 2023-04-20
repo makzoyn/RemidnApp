@@ -7,6 +7,9 @@
         <variable
             name="remindEntry"
             type="com.example.reminderapp.database.RemindEntry" />
+        <variable
+            name="clickListener"
+            type="com.example.reminderapp.ui.remind.RemindClickListener" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -16,9 +19,11 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:cardElevation="16dp"
-        app:cardCornerRadius="8dp">
+        app:cardCornerRadius="8dp"
+        android:onClick="@{() -> clickListener.onClick(remindEntry)}">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/row_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -41,7 +46,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/taskDate"
+                        android:id="@+id/task_date"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -53,7 +58,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/taskTime"
+                        android:id="@+id/task_time"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -86,7 +91,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/remindText"
+                        android:id="@+id/remind_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         tools:text="@string/remind_text"
@@ -96,7 +101,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/remindDescription"
+                        android:id="@+id/remind_description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         tools:hint="@string/description_text"

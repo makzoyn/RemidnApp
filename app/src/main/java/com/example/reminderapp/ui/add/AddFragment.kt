@@ -34,10 +34,8 @@ class AddFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentAddBinding.inflate(inflater)
-        
 
         binding.apply {
-
             setTimeBtn.setOnClickListener {
                 val calendar = Calendar.getInstance()
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -104,7 +102,10 @@ class AddFragment : Fragment() {
                 findNavController().navigate(R.id.action_addFragment_to_remindFragment)
             }
         }
+
         return binding.root
+
+
     }
 
 

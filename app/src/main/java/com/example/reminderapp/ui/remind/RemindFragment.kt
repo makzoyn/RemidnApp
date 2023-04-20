@@ -26,17 +26,22 @@ class RemindFragment : Fragment() {
 
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
-        adapter = RemindAdapter()
-        viewModel.getAllTasks.observe(viewLifecycleOwner) {
+        adapter = RemindAdapter(RemindClickListener { remindEntry ->
+            findNavController().navigate(
+                RemindFragmentDirections.actionRemindFragmentToEditFragment(
+                    remindEntry
+                )
+            )
+        })
+        viewModel.getAllReminds.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
+
         binding.apply {
 
             binding.recyclerView.adapter = adapter
 
             floatingActionButton.setOnClickListener{
-
                 findNavController().navigate(R.id.action_remindFragment_to_addFragment)
             }
         }

@@ -12,13 +12,9 @@ import kotlinx.coroutines.launch
 
 class RemindViewModel(application: Application) : AndroidViewModel(application) {
     private val remindDao = RemindDatabase.getDatabase(application).remindDao()
-    private val repository: RemindRepository
+    private val repository: RemindRepository = RemindRepository(remindDao)
 
-    val getAllTasks: LiveData<List<RemindEntry>>
-    init {
-        repository = RemindRepository(remindDao)
-        getAllTasks = repository.getAllTasks()
-    }
+    val getAllReminds: LiveData<List<RemindEntry>> = repository.getAllReminds()
 
     fun insert(remindEntry: RemindEntry){
         viewModelScope.launch(Dispatchers.IO) {

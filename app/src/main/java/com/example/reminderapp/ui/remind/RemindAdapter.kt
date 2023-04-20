@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.reminderapp.database.RemindEntry
 import com.example.reminderapp.databinding.LayoutRowBinding
 
-class RemindAdapter : ListAdapter<RemindEntry, RemindAdapter.ViewHolder>(RemindDiffCallback) {
+class RemindAdapter(val clickListener: RemindClickListener) : ListAdapter<RemindEntry, RemindAdapter.ViewHolder>(RemindDiffCallback) {
     companion object RemindDiffCallback : DiffUtil.ItemCallback<RemindEntry>(){
         override fun areItemsTheSame(oldItem: RemindEntry, newItem: RemindEntry) =
             oldItem.id == newItem.id
@@ -16,11 +16,11 @@ class RemindAdapter : ListAdapter<RemindEntry, RemindAdapter.ViewHolder>(RemindD
             oldItem == newItem
     }
     class ViewHolder(val binding: LayoutRowBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(remindEntry: RemindEntry) {
+        fun bind(remindEntry: RemindEntry, clickListener: RemindClickListener) {
             binding.remindEntry = remindEntry
+            binding.clickListener = clickListener
             binding.executePendingBindings()
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,6 +29,11 @@ class RemindAdapter : ListAdapter<RemindEntry, RemindAdapter.ViewHolder>(RemindD
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val current = getItem(position)
-        holder.bind(current)
+        holder.bind(current, clickListener)
     }
 }
+
+class RemindClickListener(val clickListener: (remindEntry : RemindEntry) -> Unit) {
+    fun onClick(remindEntry: RemindEntry) = clickListener(remindEntry)
+}
+

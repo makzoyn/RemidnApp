@@ -15,5 +15,5 @@ class RemindRepository(val remindDao : RemindDao) {
     suspend fun deleteAll() {
         remindDao.deleteAll()
     }
-    fun getAllTasks() : LiveData<List<RemindEntry>> = remindDao.getAllReminds()
+    fun getAllReminds() : LiveData<List<RemindEntry>> = remindDao.getAllReminds()
 }
