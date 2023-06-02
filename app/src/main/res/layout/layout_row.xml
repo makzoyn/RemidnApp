@@ -25,7 +25,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/row_background"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_margin="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,24 +51,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        tools:text="@string/date_text"
                         android:text="@{remindEntry.date}"
-                        android:fontFamily="monospace"
                         android:textColor="@color/black"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="@string/date_text" />
 
                     <TextView
                         android:id="@+id/task_time"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        tools:text="@string/time_text"
                         android:text="@{remindEntry.time}"
                         android:textColor="@color/black"
                         android:textSize="14sp"
-                        android:fontFamily="monospace"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="@string/time_text" />
 
                 </LinearLayout>
 
@@ -94,21 +93,24 @@
                         android:id="@+id/remind_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        tools:text="@string/remind_text"
                         android:text="@{remindEntry.title}"
                         android:textColor="@color/black"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="@string/remind_text" />
 
                     <TextView
                         android:id="@+id/remind_description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        tools:hint="@string/description_text"
                         android:hint="@{remindEntry.description}"
                         android:textColor="@color/black"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:minLines="1"
+                        android:maxLines="20"
+                        android:ellipsize="end"
+                        android:textStyle="bold"
+                        tools:hint="@string/description_text" />
 
                 </LinearLayout>
             </LinearLayout>

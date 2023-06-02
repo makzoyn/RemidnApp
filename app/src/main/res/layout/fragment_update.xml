@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_centerHorizontal="false"
     android:layout_centerVertical="true"
-    tools:context=".ui.add.AddFragment">
+    tools:context=".ui.update.UpdateFragment">
 
     <data>
 
@@ -52,7 +52,7 @@
             tools:ignore="VisualLintTextFieldSize" />
 
         <ImageButton
-            android:id="@+id/setTimeBtn"
+            android:id="@+id/updateTimeBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="64dp"
@@ -64,7 +64,7 @@
             app:layout_constraintTop_toBottomOf="@+id/updateEtDescription" />
 
         <ImageButton
-            android:id="@+id/setDateBtn"
+            android:id="@+id/updateDateBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
@@ -78,6 +78,7 @@
         <Button
             android:id="@+id/updateAlarmBtn"
             android:layout_width="0dp"
+            android:textAllCaps="true"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
@@ -104,10 +105,10 @@
             android:textColor="@color/black"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/updateAlarmBtn"
-            app:layout_constraintEnd_toEndOf="@+id/setTimeBtn"
+            app:layout_constraintEnd_toEndOf="@+id/updateTimeBtn"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/setTimeBtn"
-            app:layout_constraintTop_toBottomOf="@+id/setTimeBtn"
+            app:layout_constraintStart_toStartOf="@+id/updateTimeBtn"
+            app:layout_constraintTop_toBottomOf="@+id/updateTimeBtn"
             app:layout_constraintVertical_bias="0.0" />
 
         <TextView
@@ -119,10 +120,10 @@
             android:textAllCaps="true"
             android:textColor="@color/black"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@+id/setDateBtn"
+            app:layout_constraintEnd_toEndOf="@+id/updateDateBtn"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/setDateBtn"
-            app:layout_constraintTop_toBottomOf="@+id/setDateBtn" />
+            app:layout_constraintStart_toStartOf="@+id/updateDateBtn"
+            app:layout_constraintTop_toBottomOf="@+id/updateDateBtn" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

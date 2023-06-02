@@ -15,11 +15,15 @@ class RemindViewModel(application: Application) : AndroidViewModel(application) 
     private val repository: RemindRepository = RemindRepository(remindDao)
 
     val getAllReminds: LiveData<List<RemindEntry>> = repository.getAllReminds()
-
+    val getLastRemindId : LiveData<Int> = repository.getLastRemindId()
     fun insert(remindEntry: RemindEntry){
         viewModelScope.launch(Dispatchers.IO) {
             repository.insert(remindEntry)
         }
+    }
+
+    suspend fun getRemindsFromServer(token: String, login: String) {
+        repository.getRemindsFromServer(token, login)
     }
 
     fun update(remindEntry: RemindEntry){

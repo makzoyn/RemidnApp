@@ -14,5 +14,6 @@ data class RemindEntry (
     var title: String,
     var description: String,
     var time: String,
-    var date: String
+    var date: String,
+    var alarmID : Int
 ) : Parcelable

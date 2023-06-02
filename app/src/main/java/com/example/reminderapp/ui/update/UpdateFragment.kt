@@ -1,64 +1,53 @@
-package com.example.reminderapp.ui.add
+package com.example.reminderapp.ui.update
 
 import android.annotation.SuppressLint
-import android.app.AlarmManager
 import android.app.DatePickerDialog
-import android.app.DatePickerDialog.OnDateSetListener
-import android.app.PendingIntent
 import android.app.TimePickerDialog
-import android.app.TimePickerDialog.OnTimeSetListener
-import android.content.ClipDescription
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.DatePicker
-import android.widget.TimePicker
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.reminderapp.R
-import com.example.reminderapp.alarm.AlarmBroadcast
 import com.example.reminderapp.database.RemindEntry
-import com.example.reminderapp.databinding.FragmentAddBinding
+import com.example.reminderapp.databinding.FragmentUpdateBinding
 import com.example.reminderapp.utils.FormatTime
 import com.example.reminderapp.viewmodel.RemindViewModel
-import java.text.DateFormat
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Random
-import java.util.UUID
 
 
-class AddFragment : Fragment() {
-
+class UpdateFragment : Fragment() {
     private val viewModel: RemindViewModel by viewModels()
-
-
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding = FragmentAddBinding.inflate(inflater)
-        lateinit var timeToNotify: String
+
+        val binding = FragmentUpdateBinding.inflate(inflater)
+
+        val args = UpdateFragmentArgs.fromBundle(requireArguments())
+
         binding.apply {
-            setTimeBtn.setOnClickListener {
+            updateEtTitle.setText(args.remindEntry.title)
+            updateEtDescription.setText(args.remindEntry.description)
+            updateTvTime.text = args.remindEntry.time
+            updateTvDate.text = args.remindEntry.date
+
+
+            updateTimeBtn.setOnClickListener {
                 val calendar = Calendar.getInstance()
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
                 val minute = calendar.get(Calendar.MINUTE)
                 val timePickerDialog = TimePickerDialog(
                     requireContext(),
                     { /*timePicker: TimePicker?*/_, hour1: Int, minute1: Int ->
-                        timeToNotify = "$hour1:$minute1"
-                        tvTime.text = FormatTime.formatTime(hour1, minute1)
+                        updateTvTime.text = FormatTime.formatTime(hour1, minute1)
                     },
                     hour,
                     minute,
@@ -66,7 +55,7 @@ class AddFragment : Fragment() {
                 )
                 timePickerDialog.show()
             }
-            setDateBtn.setOnClickListener {
+            updateDateBtn.setOnClickListener {
                 val calendar = Calendar.getInstance()
                 val year = calendar.get(Calendar.YEAR)
                 val month = calendar.get(Calendar.MONTH)
@@ -86,8 +75,7 @@ class AddFragment : Fragment() {
                             dateString.append("0")
                         }
                         dateString.append("$day1")
-                        tvDate.text = dateString.toString()
-                        //tvDate.text = "$day1-${month1 + 1}-$year"
+                        updateTvDate.text = dateString.toString()
                     },
                     year,
                     month,
@@ -95,74 +83,42 @@ class AddFragment : Fragment() {
                 )
                 datePickerDialog.show()
             }
-            setAlarmBtn.setOnClickListener {
-                if (TextUtils.isEmpty(etTitle.text)) {
+            updateAlarmBtn.setOnClickListener {
+                if (TextUtils.isEmpty(updateEtTitle.text)) {
                     Toast.makeText(requireContext(), "Title empty!", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
-                } else if (TextUtils.isEmpty(etDescription.text)) {
+                } else if (TextUtils.isEmpty(updateEtDescription.text)) {
                     Toast.makeText(requireContext(), "Description empty!", Toast.LENGTH_SHORT)
                         .show()
                     return@setOnClickListener
-                } else if (TextUtils.isEmpty(tvTime.text)) {
+                } else if (TextUtils.isEmpty(updateTvTime.text)) {
                     Toast.makeText(requireContext(), "Set time!", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
-                } else if (TextUtils.isEmpty(tvDate.text)) {
+                } else if (TextUtils.isEmpty(updateTvDate.text)) {
                     Toast.makeText(requireContext(), "Set date!", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
+                val title = updateEtTitle.text.toString()
+                val description = updateEtDescription.text.toString()
+                val time = updateTvTime.text.toString()
+                val date = updateTvDate.text.toString()
 
-                val title = etTitle.text.toString()
-                val description = etDescription.text.toString()
-                val time = tvTime.text.toString()
-                val date = tvDate.text.toString()
-                val random = Random(System.currentTimeMillis())
-                val alarmID = random.nextInt()
                 val remindEntry = RemindEntry(
-                    0,
+                    args.remindEntry.id,
                     title,
                     description,
                     time,
                     date,
-                    alarmID
+                    args.remindEntry.alarmID
                 )
-
-                viewModel.insert(remindEntry)
-                setAlarm(title, date, timeToNotify, description, alarmID)
-
+                viewModel.update(remindEntry)
+                Toast.makeText(requireContext(), "Updated", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.action_updateFragment_to_remindFragment)
             }
         }
+
         return binding.root
-
     }
-
-    @SuppressLint("SimpleDateFormat")
-    private fun setAlarm(text: String, date: String, time:String, description: String, alarmID : Int) {
-        val am : AlarmManager = getSystemService(requireContext(), AlarmManager::class.java) as AlarmManager
-        val intent = Intent(requireContext(), AlarmBroadcast::class.java)
-        intent.putExtra("event", text)
-        intent.putExtra("time", time)
-        intent.putExtra("date", date)
-        intent.putExtra("description", description)
-
-        val pendingIntent = PendingIntent.getBroadcast(
-            activity,
-            alarmID,
-            intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
-        )
-        val dateAndTime = "$date $time"
-        val formatter : DateFormat = SimpleDateFormat("yyyy.M.d hh:mm")
-        try {
-            val date1 : Date = formatter.parse(dateAndTime) as Date
-            am.set(AlarmManager.RTC_WAKEUP, date1.time, pendingIntent)
-        }catch (e : ParseException) {
-            e.printStackTrace()
-        }
-        Toast.makeText(requireContext(), "$alarmID", Toast.LENGTH_SHORT).show()
-        findNavController().navigate(R.id.action_addFragment_to_remindFragment)
-
-    }
-
 
 }
