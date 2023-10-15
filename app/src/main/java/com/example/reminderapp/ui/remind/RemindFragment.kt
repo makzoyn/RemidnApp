@@ -1,7 +1,12 @@
 package com.example.reminderapp.ui.remind
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -9,6 +14,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
@@ -18,20 +24,23 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.reminderapp.R
+import com.example.reminderapp.alarm.AlarmBroadcast
 import com.example.reminderapp.database.RemindEntry
 import com.example.reminderapp.databinding.FragmentRemindBinding
 import com.example.reminderapp.viewmodel.RemindViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import java.text.DateFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 class RemindFragment : Fragment() {
 
     private val viewModel: RemindViewModel by viewModels()
     private lateinit var adapter: RemindAdapter
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,11 +49,9 @@ class RemindFragment : Fragment() {
 
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                // Add menu items here
                 menuInflater.inflate(R.menu.remind_menu, menu)
             }
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                // Handle the menu selection
                 return when (menuItem.itemId) {
                     R.id.action_delete_all -> {
                         deleteAllItem()
@@ -74,8 +81,6 @@ class RemindFragment : Fragment() {
         viewModel.getAllReminds.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
-
-
 
         binding.apply {
 
@@ -112,16 +117,11 @@ class RemindFragment : Fragment() {
 
     }
 
-
-
     private fun fetchDataFromServer() {
         val login = "mylogin"
         val token = "bd6e5304-dc9f-4164-a02a-58e667fc7999"
         lifecycleScope.launch {
             viewModel.getRemindsFromServer(token,login)
-            // Handle the list of reminds here
-            // For example, you can update the adapter with the fetched data
-
         }
     }
 
@@ -136,4 +136,5 @@ class RemindFragment : Fragment() {
                 dialog.dismiss()
             }.create().show()
     }
+    
 }

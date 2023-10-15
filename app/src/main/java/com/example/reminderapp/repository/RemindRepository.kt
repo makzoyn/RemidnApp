@@ -1,7 +1,15 @@
 package com.example.reminderapp.repository
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.util.Log
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
+import androidx.navigation.fragment.findNavController
+import com.example.reminderapp.R
+import com.example.reminderapp.alarm.AlarmBroadcast
 import com.example.reminderapp.api.ServerAPI
 import com.example.reminderapp.database.RemindDao
 import com.example.reminderapp.database.RemindEntry
@@ -11,6 +19,10 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.text.DateFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class RemindRepository(val remindDao: RemindDao) {
 
@@ -36,7 +48,7 @@ class RemindRepository(val remindDao: RemindDao) {
         serverAPI = retrofit.create(ServerAPI::class.java)
     }
 
-    suspend fun saveRemindsToLocalDatabase(reminds: List<RemindEntry>) {
+    private suspend fun saveRemindsToLocalDatabase(reminds: List<RemindEntry>) {
         withContext(Dispatchers.IO) {
             val localReminds = remindDao.getAllReminds().value // Get all local reminds
 
@@ -46,20 +58,16 @@ class RemindRepository(val remindDao: RemindDao) {
             for (serverRemind in reminds) {
                 val localRemind = localReminds?.find { it.id == serverRemind.id }
                 if (localRemind != null) {
-                    // Remind with the same ID exists locally
                     if (localRemind != serverRemind) {
-                        // Update the local remind if it's different from the server remind
                         remindsToUpdate.add(serverRemind)
                     }
                 } else {
-                    // Remind with the same ID doesn't exist locally, add it
                     remindsToAdd.add(serverRemind)
                 }
             }
 
-            remindDao.deleteAll() // Clear the local database
+            remindDao.deleteAll()
 
-            // Add the server reminds and the new reminds to the local database
             val mergedReminds = remindsToUpdate + remindsToAdd
             remindDao.insertAll(mergedReminds)
         }
@@ -67,7 +75,7 @@ class RemindRepository(val remindDao: RemindDao) {
 
     suspend fun getRemindsFromServer(token: String, login: String) {
         try {
-            val reminds = serverAPI.getReminds(token, login) // Получаем список напоминаний с сервера
+            val reminds = serverAPI.getReminds(token, login) // список напоминаний с сервера
             saveRemindsToLocalDatabase(reminds)
         } catch (e: Exception) {
             Log.e("TAG", "Ошибка при выполнении запроса к серверу: ${e.message}")
@@ -88,4 +96,5 @@ class RemindRepository(val remindDao: RemindDao) {
 
 
     fun getLastRemindId(): LiveData<Int> = remindDao.getLastRemindId()
+
 }
