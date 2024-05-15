@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="input_corner_radius">10dp</dimen>
+    <dimen name="input_layout_box_stroke_width">1dp</dimen>
+    <dimen name="button_inset">0dp</dimen>
+    <dimen name="button_spacing_0">0dp</dimen>
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="button_corner_radius_16">16dp</dimen>
+    <dimen name="button_stroke_width">1dp</dimen>
+</resources>

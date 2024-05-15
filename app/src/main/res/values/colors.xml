@@ -7,4 +7,21 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="toolbarColor">#FFFFFFFF</color>
+    <color name="appBg">#FFEBEE</color>
+
+    <color name="blackText">#080A0B</color>
+    <color name="grayText">#5D5D5B</color>
+    <color name="inactiveButton">#CFCECE</color>
+    <color name="inputTextColor">#1D1D1F</color>
+    <color name="hintColor">#014E45</color>
+    <color name="helperColor">#015C52</color>
+    <color name="errorHintColor">#D32F2F</color>
+    <color name="errorTextColor">#FF1744</color>
+    <color name="notifiedCardColor">#C5CAE9</color>
+    <color name="mainCreateBtn">#E3F2FD</color>
+    <color name="strokeColor">#00BFA5</color>
+    <color name="errorStrokeColor">#DD2C00</color>
+    <color name="btnStrokeColor">#121212</color>
+    <color name="btnStrokeColorPressed">#222222</color>
 </resources>

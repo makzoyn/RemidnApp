@@ -15,4 +15,22 @@
     <string name="date_example_text">20-4-2023</string>
     <string name="time_example_text">10:30 AM</string>
     <string name="update_alarm_btn">update alarm</string>
+    <string name="back_pressed_error">Вы точно хотите выйти?</string>
+    <string name="registration_title">Регистрация</string>
+    <string name="registration_subtitle">Присоединяйся, чтобы начать!</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="registration_btn">Зарегистрироваться</string>
+    <string name="repeat_password">Повторите пароль</string>
+    <string name="to_login_btn">Авторизоваться</string>
+    <string name="email_hint">Email</string>
+    <string name="authorization">Авторизация</string>
+    <string name="title_remind">Задача</string>
+    <string name="description_remind">Описание</string>
+    <string name="set_remind_checkbox">Выбрать время, когда мне напомнить о задаче</string>
+    <string name="reminds_title">Заметки</string>
+    <string name="remind_create_title">Создание заметки</string>
+    <string name="create_remind_main_btn">Добавить заметку</string>
+    <string name="delete_menu">Удалить</string>
+    <string name="update_alarm_btn_text">update alarm</string>
 </resources>

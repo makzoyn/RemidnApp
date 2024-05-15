@@ -6,6 +6,5 @@ data class RemindsResponseItem(
     val description: String,
     val time: String,
     val date: String,
-    val alarmId: Int,
-    val login: String,
+    val alarmId: Int
 )

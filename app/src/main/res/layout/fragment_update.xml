@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_centerHorizontal="false"
     android:layout_centerVertical="true"
-    tools:context=".ui.update.UpdateFragment">
+    tools:context=".ui_deprecated.update.UpdateFragment">
 
     <data>
 
