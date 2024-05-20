@@ -26,10 +26,16 @@ class RemindAlarmViewHolder(
             longClick(item.id)
             true
         }
-        if(item.isNotified) {
-            binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.notifiedCardColor)
-        } else {
-            binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.white)
+        when{
+            item.date == null && item.time == null -> {
+                binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.onlyText)
+            }
+            item.isNotified -> {
+                binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.notifiedCardColor)
+            }
+            else -> {
+                binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.white)
+            }
         }
 
         binding.root.setOnClickListener {

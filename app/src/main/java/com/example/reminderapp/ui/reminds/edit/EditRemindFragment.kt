@@ -37,7 +37,7 @@ class EditRemindFragment: BaseFragment(R.layout.fragment_update_reminds) {
             navigationIconClick = {
                 popBack()
             }
-            title = getString(R.string.remind_create_title)
+            title = getString(R.string.update_remind_title)
         }
         binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
             viewModel.checkBoxChanged(isChecked)

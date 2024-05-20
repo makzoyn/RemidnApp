@@ -4,15 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.reminderapp.R
 import com.example.reminderapp.common.base.BaseFragment
 import com.example.reminderapp.common.extensions.listenValue
+import com.example.reminderapp.common.extensions.parentToolbar
 import com.example.reminderapp.common.extensions.toggleAvailability
 import com.example.reminderapp.common.extensions.toggleVisability
 import com.example.reminderapp.databinding.FragmentLoginBinding
-import com.example.reminderapp.databinding.FragmentRegistrationBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,6 +26,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
     }
 
     private fun bindUi() {
+        parentToolbar { isVisible = false }
         bindLoginInput()
         bindPasswordInput()
         binding.registrationBtn.setOnClickListener {

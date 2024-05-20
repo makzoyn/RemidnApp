@@ -1,5 +1,6 @@
 package com.example.reminderapp.di
 
+import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushResult
 import dagger.Module
 import dagger.Provides
@@ -13,4 +14,8 @@ class SingleResultModule {
     @Provides
     @Singleton
     fun provideDeleteMessageResult(): ReceiveMessageFromPushResult = ReceiveMessageFromPushResult()
+
+    @Provides
+    @Singleton
+    fun provideNetworkErrorResult(): NetworkErrorResult = NetworkErrorResult()
 }

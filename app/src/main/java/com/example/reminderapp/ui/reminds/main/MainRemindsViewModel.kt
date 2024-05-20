@@ -3,6 +3,7 @@ package com.example.reminderapp.ui.reminds.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reminderapp.R
+import com.example.reminderapp.common.extensions.onError
 import com.example.reminderapp.common.extensions.onSuccess
 import com.example.reminderapp.common.formatters.DateTimeFormatter
 import com.example.reminderapp.common.state.State
@@ -10,6 +11,8 @@ import com.example.reminderapp.domain.model.RemindsModel
 import com.example.reminderapp.domain.model.mapToItems
 import com.example.reminderapp.domain.usecases.DeleteRemindUseCase
 import com.example.reminderapp.domain.usecases.GetAllRemindsUseCase
+import com.example.reminderapp.singleresult.NetworkErrorEvents
+import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushEvent
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushResult
 import com.example.reminderapp.ui.reminds.adapter.model.RemindItem
@@ -42,7 +45,8 @@ class MainRemindsViewModelImpl @Inject constructor(
     private val getAllRemindsUseCase: GetAllRemindsUseCase,
     private val dateTimeFormatter: DateTimeFormatter,
     private val receiveMessageFromPushResult: ReceiveMessageFromPushResult,
-    private val deleteRemindUseCase: DeleteRemindUseCase
+    private val deleteRemindUseCase: DeleteRemindUseCase,
+    private val networkErrorResult: NetworkErrorResult
 ) : MainRemindsViewModel, ViewModel() {
 
 
@@ -125,6 +129,14 @@ class MainRemindsViewModelImpl @Inject constructor(
                         .sortedBy { it.date }
                         .sortedBy { it.isNotified }
                     remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
+                }
+                state.onError {  error ->
+                    networkErrorResult.postEvent(
+                        NetworkErrorEvents.ShowErrorDialog(
+                            title = "Ошибка",
+                            message = error.errorMessage
+                        )
+                    )
                 }
             }.launchIn(viewModelScope)
     }

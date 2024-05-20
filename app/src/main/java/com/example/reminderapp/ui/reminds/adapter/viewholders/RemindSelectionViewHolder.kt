@@ -4,7 +4,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.reminderapp.R
 import com.example.reminderapp.common.extensions.toggleVisability
-import com.example.reminderapp.databinding.ItemAlarmRemindBinding
 import com.example.reminderapp.databinding.ItemSelectionRemindBinding
 import com.example.reminderapp.ui.reminds.adapter.model.RemindItem
 
@@ -27,10 +26,16 @@ class RemindSelectionViewHolder(
             true
         }
         binding.selection.toggleVisability(item.isSelected)
-        if(item.isNotified) {
-            binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.notifiedCardColor)
-        } else {
-            binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.white)
+        when{
+            item.date == null && item.time == null -> {
+                binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.onlyText)
+            }
+            item.isNotified -> {
+                binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.notifiedCardColor)
+            }
+            else -> {
+                binding.root.backgroundTintList = ContextCompat.getColorStateList(itemView.context, R.color.white)
+            }
         }
 
         binding.root.setOnClickListener {

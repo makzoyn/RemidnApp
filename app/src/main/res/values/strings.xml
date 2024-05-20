@@ -33,4 +33,5 @@
     <string name="create_remind_main_btn">Добавить заметку</string>
     <string name="delete_menu">Удалить</string>
     <string name="update_alarm_btn_text">update alarm</string>
+    <string name="update_remind_title">Редактирование заметки</string>
 </resources>

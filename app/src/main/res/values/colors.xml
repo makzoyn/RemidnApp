@@ -19,6 +19,7 @@
     <color name="errorHintColor">#D32F2F</color>
     <color name="errorTextColor">#FF1744</color>
     <color name="notifiedCardColor">#C5CAE9</color>
+    <color name="onlyText">#F8E0CD</color>
     <color name="mainCreateBtn">#E3F2FD</color>
     <color name="strokeColor">#00BFA5</color>
     <color name="errorStrokeColor">#DD2C00</color>

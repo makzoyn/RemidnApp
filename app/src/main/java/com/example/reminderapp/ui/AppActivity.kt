@@ -12,9 +12,11 @@ import com.example.reminderapp.common.ToolbarController
 import com.example.reminderapp.common.ToolbarControllerProvider
 import com.example.reminderapp.common.base.BaseActivity
 import com.example.reminderapp.common.extensions.listenValue
+import com.example.reminderapp.common.util.DialogUtils
 import com.example.reminderapp.databinding.ActivityAppBinding
-import com.example.reminderapp.databinding.FragmentMainRemindsBinding
 import com.example.reminderapp.repository.PreferencesDataStoreRepository
+import com.example.reminderapp.singleresult.NetworkErrorEvents
+import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushEvent
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushResult
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +36,9 @@ class AppActivity: BaseActivity(R.layout.activity_app), ToolbarControllerProvide
     @Inject
     lateinit var receiveMessageFromPushResult: ReceiveMessageFromPushResult
 
+    @Inject
+    lateinit var networkErrorResult: NetworkErrorResult
+
     private var toolbarController: ToolbarController? = null
     override fun provideToolbarController(): ToolbarController? = toolbarController
 
@@ -43,9 +48,18 @@ class AppActivity: BaseActivity(R.layout.activity_app), ToolbarControllerProvide
         navController = navHostFragment.navController
         lifecycleScope.launch {
             subscribeOnDeleteMessageResult()
+            subscribeOnNetworkErrorResult()
         }
         prepareToolbarController()
         observeViewModel()
+    }
+
+    private suspend fun subscribeOnNetworkErrorResult() {
+        networkErrorResult.events.collect { event ->
+            if(event is NetworkErrorEvents.ShowErrorDialog) {
+                showMessage(message = event.message, title = event.title)
+            }
+        }
     }
 
     private fun observeViewModel() = with(viewModel) {
@@ -64,6 +78,13 @@ class AppActivity: BaseActivity(R.layout.activity_app), ToolbarControllerProvide
         }
     }
 
+    private fun showMessage(message: String, title: String) {
+        runOnUiThread {
+            val dialog = DialogUtils.createSimpleOkErrorDialog(this, title, message)
+            dialog.setCancelable(false)
+            dialog.show()
+        }
+    }
     private fun prepareToolbarController() {
         toolbarController = ToolbarController(binding.toolbar)
     }
