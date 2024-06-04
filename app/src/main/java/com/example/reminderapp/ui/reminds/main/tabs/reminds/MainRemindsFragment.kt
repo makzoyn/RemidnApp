@@ -1,4 +1,4 @@
-package com.example.reminderapp.ui.reminds.main
+package com.example.reminderapp.ui.reminds.main.tabs.reminds
 
 import android.os.Bundle
 import android.view.View
@@ -18,7 +18,7 @@ import com.example.reminderapp.ui.reminds.adapter.model.RemindItem
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainRemindsFragment : BaseFragment(R.layout.fragment_main_reminds) {
+open class MainRemindsFragment : BaseFragment(R.layout.fragment_main_reminds) {
     private val viewModel: MainRemindsViewModel by viewModels<MainRemindsViewModelImpl>()
     private val binding by viewBinding(FragmentMainRemindsBinding::bind)
 

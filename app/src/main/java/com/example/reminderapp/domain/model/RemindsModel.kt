@@ -16,6 +16,7 @@ fun List<RemindModel>.mapToItems(
         description = it.description,
         time = it.time?.let { time -> dateTimeFormatter.formatTimeToUi(time) },
         date = it.date?.let { date -> dateTimeFormatter.formatDateToUi(date) },
-        isNotified = it.isNotified
+        isNotified = it.isNotified,
+        needToNotified = it.needToNotified
     )
 }

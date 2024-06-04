@@ -9,7 +9,8 @@ data class RemindItem(
     val time: String?,
     val date: String?,
     val isNotified: Boolean,
-    val isSelected: Boolean = false
+    val isSelected: Boolean = false,
+    val needToNotified: Boolean
 ) : DiffItem {
     override fun areItemsTheSame(newItem: DiffItem): Boolean =
         newItem is RemindItem && this.id == newItem.id

@@ -10,7 +10,6 @@ import com.example.reminderapp.common.extensions.requireParam
 import com.example.reminderapp.common.formatters.DateTimeFormatter
 import com.example.reminderapp.common.state.State
 import com.example.reminderapp.domain.model.RemindModel
-import com.example.reminderapp.domain.usecases.CreateRemindUseCase
 import com.example.reminderapp.domain.usecases.GetRemindUseCase
 import com.example.reminderapp.domain.usecases.UpdateRemindUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -120,7 +119,7 @@ class EditRemindViewModelImpl @Inject constructor(
         ).onEach { state ->
             createRemindState.emit(state)
             state.onSuccess {
-                navigationFlow.emit(R.id.action_editRemindFragment_to_mainRemindsFragment)
+                navigationFlow.emit(R.id.action_editRemindFragment_to_mainFragment)
             }
         }.launchIn(viewModelScope)
     }

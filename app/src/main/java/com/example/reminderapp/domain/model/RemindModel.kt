@@ -6,5 +6,6 @@ data class RemindModel(
     val description: String?,
     val time: String?,
     val date: String?,
-    val isNotified: Boolean
+    val isNotified: Boolean,
+    val needToNotified: Boolean
 )

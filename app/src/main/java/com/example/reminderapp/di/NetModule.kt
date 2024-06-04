@@ -1,23 +1,20 @@
 package com.example.reminderapp.di
 
 
-import android.util.Log
 import com.example.reminderapp.BuildConfig
+import com.example.reminderapp.api.interceptors.ErrorsInterceptor
 import com.example.reminderapp.api.interceptors.TokenInterceptor
 import com.example.reminderapp.common.networkresult.NetworkResultCallAdapterFactory
-import com.example.reminderapp.repository.PreferencesDataStoreRepository
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -27,7 +24,8 @@ class NetModule {
     @Provides
     @Singleton
     internal fun provideClient(
-        userTokenInterceptor: TokenInterceptor
+        userTokenInterceptor: TokenInterceptor,
+        errorsInterceptor: ErrorsInterceptor
         ): OkHttpClient {
         val logging = HttpLoggingInterceptor()
         logging.level =
@@ -36,6 +34,7 @@ class NetModule {
         return OkHttpClient.Builder()
             .addInterceptor(logging)
             .addInterceptor(userTokenInterceptor)
+            .addInterceptor(errorsInterceptor)
             .connectTimeout(50, TimeUnit.SECONDS)
             .readTimeout(50, TimeUnit.SECONDS)
             .build()

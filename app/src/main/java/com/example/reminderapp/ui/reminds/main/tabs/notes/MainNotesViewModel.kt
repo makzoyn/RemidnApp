@@ -1,4 +1,4 @@
-package com.example.reminderapp.ui.reminds.main
+package com.example.reminderapp.ui.reminds.main.tabs.notes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,7 +10,7 @@ import com.example.reminderapp.common.state.State
 import com.example.reminderapp.domain.model.RemindsModel
 import com.example.reminderapp.domain.model.mapToItems
 import com.example.reminderapp.domain.usecases.DeleteRemindUseCase
-import com.example.reminderapp.domain.usecases.GetAllRemindsUseCase
+import com.example.reminderapp.domain.usecases.GetAllNotesUseCase
 import com.example.reminderapp.singleresult.NetworkErrorEvents
 import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushEvent
@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface MainRemindsViewModel {
+interface MainNotesViewModel {
     val loadingState: Flow<Boolean>
     val remindsData: Flow<List<RemindItem>?>
     val navigationFlow: Flow<Pair<Int?, Any?>?>
@@ -41,13 +41,13 @@ interface MainRemindsViewModel {
 }
 
 @HiltViewModel
-class MainRemindsViewModelImpl @Inject constructor(
-    private val getAllRemindsUseCase: GetAllRemindsUseCase,
+class MainNotesViewModelImpl @Inject constructor(
+    private val getAllNotesUseCase: GetAllNotesUseCase,
     private val dateTimeFormatter: DateTimeFormatter,
     private val receiveMessageFromPushResult: ReceiveMessageFromPushResult,
     private val deleteRemindUseCase: DeleteRemindUseCase,
     private val networkErrorResult: NetworkErrorResult
-) : MainRemindsViewModel, ViewModel() {
+) : MainNotesViewModel, ViewModel() {
 
 
     override val remindsData: MutableStateFlow<List<RemindItem>?> = MutableStateFlow(null)
@@ -59,7 +59,7 @@ class MainRemindsViewModelImpl @Inject constructor(
     override val deleteVisibilityState: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
-        getAllReminds()
+        getAllNotes()
         viewModelScope.launch {
             subscribeOnRemindDeleteFromPushResult()
         }
@@ -73,14 +73,14 @@ class MainRemindsViewModelImpl @Inject constructor(
                 .onEach { state ->
                     deleteState.emit(state)
                     state.onSuccess {
-                        getAllReminds()
+                        getAllNotes()
                     }
                 }.launchIn(viewModelScope)
         }
     }
 
     override fun editRemind(id: Int) {
-        navigationFlow.update { Pair(R.id.action_mainRemindsFragment_to_editRemindFragment, EditRemindFragment.Param(id)) }
+        navigationFlow.update { Pair(R.id.action_mainFragment_to_editRemindFragment, EditRemindFragment.Param(id)) }
     }
 
     override fun unselectAll() {
@@ -113,15 +113,15 @@ class MainRemindsViewModelImpl @Inject constructor(
     }
 
     override fun refreshReminds() {
-        getAllReminds()
+        getAllNotes()
     }
 
     override fun createRemindClicked() {
-        navigationFlow.update { Pair(R.id.action_mainRemindsFragment_to_createRemindFragment, null) }
+        navigationFlow.update { Pair(R.id.action_mainFragment_to_createRemindFragment, null) }
     }
 
-    private fun getAllReminds() {
-        getAllRemindsUseCase()
+    private fun getAllNotes() {
+        getAllNotesUseCase()
             .onEach { state ->
                 remindsState.emit(state)
                 state.onSuccess { remindsModel ->

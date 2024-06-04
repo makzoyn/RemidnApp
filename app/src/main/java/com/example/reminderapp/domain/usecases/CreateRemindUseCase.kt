@@ -16,7 +16,8 @@ class CreateRemindUseCase @Inject constructor(
         title: String,
         description: String?,
         time: String?,
-        date: String?
+        date: String?,
+        needToNotified: Boolean
     ): Flow<State<RemindModel>> = flow {
         emit(State.Loading)
         val result = repository.createRemind(
@@ -24,7 +25,8 @@ class CreateRemindUseCase @Inject constructor(
                 title = title,
                 description = description,
                 time = time,
-                date = date
+                date = date,
+                needToNotified = needToNotified
             )
         )
         emit(result.mapToState())

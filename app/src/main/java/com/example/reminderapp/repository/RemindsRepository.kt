@@ -12,6 +12,7 @@ import com.example.reminderapp.domain.model.RemindsModel
 
 interface RemindsRepository {
     suspend fun getAllReminds(): NetworkResult<RemindsModel>
+    suspend fun getAllNotes(): NetworkResult<RemindsModel>
     suspend fun createRemind(
         createRemindRequest: CreateRemindRequest
     ): NetworkResult<RemindModel>
@@ -35,6 +36,9 @@ class RemindsRepositoryImpl(
 ) : RemindsRepository {
     override suspend fun getAllReminds(): NetworkResult<RemindsModel> =
         api.getAllReminds().mapResult { it.mapToDomain() }
+
+    override suspend fun getAllNotes(): NetworkResult<RemindsModel> =
+        api.getAllNotes().mapResult { it.mapToDomain() }
 
     override suspend fun createRemind(
         createRemindRequest: CreateRemindRequest

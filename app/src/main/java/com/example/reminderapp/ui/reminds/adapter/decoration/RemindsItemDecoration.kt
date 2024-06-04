@@ -13,13 +13,9 @@ class RemindsItemDecoration: RecyclerView.ItemDecoration() {
         state: RecyclerView.State
     ) {
         super.getItemOffsets(outRect, view, parent, state)
-        val position = parent.getChildAdapterPosition(view)
         val startMargin = 24
         val endMargin = 24
-        val topMargin = when(position) {
-            0 -> 12
-            else -> 36
-        }
+        val topMargin = 36
 
         outRect.left = startMargin
         outRect.right = endMargin

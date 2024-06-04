@@ -75,4 +75,9 @@
     </style>
 
     <dimen name="toolbar_inset_size_0">0dp</dimen>
+
+    <style name="TabLayoutStyle" parent="Widget.MaterialComponents.TabLayout">
+        <item name="maxHeight">32dp</item>
+        <!--<item name="colorAccent">@color/main_colour_1_4</item>-->
+    </style>
 </resources>

@@ -45,7 +45,7 @@ class AppViewModelImpl @Inject constructor(
             .distinctUntilChanged()
             .onEach {
                 if (it.isNotEmpty()) {
-                    navigationFlow.emit(R.id.mainRemindsFragment)
+                    navigationFlow.emit(R.id.mainFragment)
                 } else {
                     navigationFlow.emit(R.id.registerFragment)
                 }

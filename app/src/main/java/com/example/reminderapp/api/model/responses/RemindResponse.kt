@@ -9,7 +9,8 @@ data class RemindResponse(
     @SerializedName("description") val description: String?,
     @SerializedName("time") val time: String?,
     @SerializedName("date") val date: String?,
-    @SerializedName("notified") val isNotified: Boolean
+    @SerializedName("notified") val isNotified: Boolean,
+    @SerializedName("need_to_notified") val needToNotified: Boolean
 )
 
 fun RemindResponse.mapToDomain() = RemindModel(
@@ -18,7 +19,8 @@ fun RemindResponse.mapToDomain() = RemindModel(
     description = description,
     time = time,
     date = date,
-    isNotified = isNotified
+    isNotified = isNotified,
+    needToNotified = needToNotified
 )
 
 fun List<RemindResponse>.toDomainList() = map { it.mapToDomain() }

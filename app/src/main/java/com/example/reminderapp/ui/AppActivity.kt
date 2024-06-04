@@ -56,8 +56,14 @@ class AppActivity: BaseActivity(R.layout.activity_app), ToolbarControllerProvide
 
     private suspend fun subscribeOnNetworkErrorResult() {
         networkErrorResult.events.collect { event ->
-            if(event is NetworkErrorEvents.ShowErrorDialog) {
-                showMessage(message = event.message, title = event.title)
+            when(event) {
+                is NetworkErrorEvents.ShowErrorDialog -> {
+                    showMessage(message = event.message, title = event.title)
+                }
+                is NetworkErrorEvents.TokenError -> {
+                    preferencesDataStoreRepository.clearPreferences()
+                    recreate()
+                }
             }
         }
     }

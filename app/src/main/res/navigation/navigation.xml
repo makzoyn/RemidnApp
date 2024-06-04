@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/mainRemindsFragment">
+    app:startDestination="@id/mainFragment">
 
     <fragment
         android:id="@+id/registerFragment"
@@ -15,9 +15,9 @@
             app:popUpToInclusive="true"
             app:destination="@id/loginFragment" />
         <action
-            android:id="@+id/action_registerFragment_to_mainRemindsFragment"
+            android:id="@+id/action_registerFragment_to_mainFragment"
             app:popUpToInclusive="true"
-            app:destination="@id/mainRemindsFragment" />
+            app:destination="@id/mainFragment" />
 
     </fragment>
 
@@ -34,42 +34,43 @@
         <action
             android:id="@+id/action_loginFragment_to_mainRemindsFragment"
             app:popUpToInclusive="true"
-            app:destination="@id/mainRemindsFragment" />
+            app:destination="@id/mainFragment" />
     </fragment>
 
-    <fragment
-        android:id="@+id/mainRemindsFragment"
-        android:name="com.example.reminderapp.ui.reminds.main.MainRemindsFragment"
-        android:label="MainRemindsFragment"
-        tools:layout="@layout/fragment_main_reminds">
-        <action
-            android:id="@+id/action_mainRemindsFragment_to_createRemindFragment"
-            app:destination="@id/createRemindFragment"
-            app:popUpTo="@id/mainRemindsFragment"
-            app:popUpToInclusive="true"/>
-
-        <action
-            android:id="@+id/action_mainRemindsFragment_to_editRemindFragment"
-            app:destination="@id/editRemindFragment"
-            app:popUpTo="@id/mainRemindsFragment"
-            app:popUpToInclusive="true"/>
-    </fragment>
     <fragment
         android:id="@+id/createRemindFragment"
         android:name="com.example.reminderapp.ui.reminds.create.CreateRemindFragment"
         android:label="CreateRemindFragment"
         tools:layout="@layout/fragment_create_reminds">
         <action
-            android:id="@+id/action_createRemindFragment_to_mainRemindsFragment"
-            app:destination="@id/mainRemindsFragment" />
+            android:id="@+id/action_createRemindFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/editRemindFragment"
         android:name="com.example.reminderapp.ui.reminds.edit.EditRemindFragment"
-        android:label="EditRemindFragment" >
+        android:label="EditRemindFragment"
+        tools:layout="@layout/fragment_update_reminds">
         <action
-            android:id="@+id/action_editRemindFragment_to_mainRemindsFragment"
-            app:destination="@id/mainRemindsFragment" />
+            android:id="@+id/action_editRemindFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.reminderapp.ui.reminds.main.tabs.MainFragment"
+        android:label="MainFragment"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_mainFragment_to_createRemindFragment"
+            app:destination="@id/createRemindFragment"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true"/>
+
+        <action
+            android:id="@+id/action_mainFragment_to_editRemindFragment"
+            app:destination="@id/editRemindFragment"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
 </navigation>

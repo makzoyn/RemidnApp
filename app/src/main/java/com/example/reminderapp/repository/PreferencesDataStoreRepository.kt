@@ -26,6 +26,8 @@ interface PreferencesDataStoreRepository {
     suspend fun updateUserToken(token: String)
     suspend fun getToken(): String
     suspend fun clearPreferences()
+    suspend fun saveTab(position: Int)
+    suspend fun getTab(): Int
 }
 
 class PreferencesDataStoreRepositoryImpl @Inject constructor(
@@ -96,12 +98,38 @@ class PreferencesDataStoreRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun clearFCMToken() {
+        dataStore.edit { preferences ->
+            preferences.remove(FIREBASE_TOKEN_KEY)
+        }
+    }
+
+    private suspend fun clearTab() {
+        dataStore.edit { preferences ->
+            preferences.remove(TAB_KEY)
+        }
+    }
+
+
     override suspend fun clearPreferences() {
         clearToken()
+        clearFCMToken()
+        clearTab()
+    }
+
+    override suspend fun saveTab(position: Int) {
+        dataStore.edit { preferences ->
+            preferences[TAB_KEY] = position.toString()
+        }
+    }
+
+    override suspend fun getTab(): Int {
+        return dataStore.data.first()[TAB_KEY]?.toIntOrNull() ?: 0
     }
 
     companion object PreferencesKeys {
         private val USER_TOKEN = stringPreferencesKey("USER_TOKEN")
         private val FIREBASE_TOKEN_KEY = stringPreferencesKey("FIREBASE_TOKEN_KEY")
+        private val TAB_KEY = stringPreferencesKey("TAB_KEY")
     }
 }
