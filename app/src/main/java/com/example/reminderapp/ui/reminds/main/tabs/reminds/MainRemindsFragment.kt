@@ -1,6 +1,7 @@
 package com.example.reminderapp.ui.reminds.main.tabs.reminds
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,7 +28,6 @@ open class MainRemindsFragment : BaseFragment(R.layout.fragment_main_reminds) {
         observeViewModel()
         preparePromotionsRecycler()
         bindUi()
-        bindToolbar()
     }
 
 
@@ -63,17 +63,6 @@ open class MainRemindsFragment : BaseFragment(R.layout.fragment_main_reminds) {
         }
         binding.addRemindButton.setOnClickListener {
             viewModel.createRemindClicked()
-        }
-    }
-
-    private fun bindToolbar() {
-        parentToolbar {
-            isVisible = true
-            title = getString(R.string.reminds_title)
-            navigationIcon = R.drawable.ic_check
-            navigationIconClick = {
-                swapRVAdapted()
-            }
         }
     }
 

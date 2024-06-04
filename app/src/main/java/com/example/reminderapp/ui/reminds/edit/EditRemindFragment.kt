@@ -11,7 +11,6 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.reminderapp.R
 import com.example.reminderapp.common.base.BaseFragment
 import com.example.reminderapp.common.extensions.listenValue
-import com.example.reminderapp.common.extensions.parentToolbar
 import com.example.reminderapp.common.extensions.toggleVisability
 import com.example.reminderapp.databinding.FragmentUpdateRemindsBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,13 +30,8 @@ class EditRemindFragment: BaseFragment(R.layout.fragment_update_reminds) {
 
 
     private fun bindUi() {
-        parentToolbar {
-            isVisible = true
-            navigationIcon = R.drawable.ic_back
-            navigationIconClick = {
-                popBack()
-            }
-            title = getString(R.string.update_remind_title)
+        binding.toolbar.setNavigationActionToStartIcon {
+            popBack()
         }
         binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
             viewModel.checkBoxChanged(isChecked)
@@ -51,7 +45,7 @@ class EditRemindFragment: BaseFragment(R.layout.fragment_update_reminds) {
         binding.setAlarmBtn.setOnClickListener {
             viewModel.updateRemindClicked()
         }
-        binding.title.addTextChangedListener {
+        binding.titleEdt.addTextChangedListener {
             viewModel.titleChanged(it.toString())
         }
         binding.description.addTextChangedListener {
@@ -66,7 +60,7 @@ class EditRemindFragment: BaseFragment(R.layout.fragment_update_reminds) {
         }
         uiTimeData.listenValue(binding.tvTime::setText)
         uiDateData.listenValue(binding.tvDate::setText)
-        titleDataFirst.listenValue(binding.title::setText)
+        titleDataFirst.listenValue(binding.titleEdt::setText)
         descriptionDataFirst.listenValue(binding.description::setText)
         navigationFlow.listenValue(::onNavigate)
         loadingState.listenValue(binding.progressLayout::toggleVisability)

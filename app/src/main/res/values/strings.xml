@@ -36,4 +36,6 @@
     <string name="update_remind_title">Редактирование заметки</string>
     <string name="notes">Заметки</string>
     <string name="reminds">Напоминания</string>
+    <string name="logout">Выйти из профиля</string>
+    <string name="edit_profile">Редактировать профиль</string>
 </resources>

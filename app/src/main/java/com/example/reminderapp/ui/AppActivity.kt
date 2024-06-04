@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AppActivity: BaseActivity(R.layout.activity_app), ToolbarControllerProvider {
+class AppActivity: BaseActivity(R.layout.activity_app) {
     private var navController : NavController? = null
 
     val viewModel: AppViewModel by viewModels<AppViewModelImpl>()
@@ -39,9 +39,6 @@ class AppActivity: BaseActivity(R.layout.activity_app), ToolbarControllerProvide
     @Inject
     lateinit var networkErrorResult: NetworkErrorResult
 
-    private var toolbarController: ToolbarController? = null
-    override fun provideToolbarController(): ToolbarController? = toolbarController
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -50,7 +47,6 @@ class AppActivity: BaseActivity(R.layout.activity_app), ToolbarControllerProvide
             subscribeOnDeleteMessageResult()
             subscribeOnNetworkErrorResult()
         }
-        prepareToolbarController()
         observeViewModel()
     }
 
@@ -90,9 +86,6 @@ class AppActivity: BaseActivity(R.layout.activity_app), ToolbarControllerProvide
             dialog.setCancelable(false)
             dialog.show()
         }
-    }
-    private fun prepareToolbarController() {
-        toolbarController = ToolbarController(binding.toolbar)
     }
 
     private suspend fun subscribeOnDeleteMessageResult() {

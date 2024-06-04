@@ -27,7 +27,6 @@ class MainNotesFragment : BaseFragment(R.layout.fragment_main_notes) {
         observeViewModel()
         preparePromotionsRecycler()
         bindUi()
-        bindToolbar()
     }
 
 
@@ -63,17 +62,6 @@ class MainNotesFragment : BaseFragment(R.layout.fragment_main_notes) {
         }
         binding.addRemindButton.setOnClickListener {
             viewModel.createRemindClicked()
-        }
-    }
-
-    private fun bindToolbar() {
-        parentToolbar {
-            isVisible = true
-            title = getString(R.string.reminds_title)
-            navigationIcon = R.drawable.ic_check
-            navigationIconClick = {
-                swapRVAdapted()
-            }
         }
     }
 

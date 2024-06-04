@@ -4,17 +4,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.example.reminderapp.views.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:text="@string/reminds_title"
+        app:endIcon="@drawable/ic_profile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <com.example.reminderapp.common.views.CustomTab
         android:id="@+id/customTab"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="8dp"
         app:first_text="@string/reminds"
-        app:second_text="@string/notes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:second_text="@string/notes" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"

@@ -22,6 +22,18 @@
     </fragment>
 
     <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.reminderapp.ui.profile.ProfileFragment"
+        android:label="Remind App"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action"
+            app:popUpToInclusive="true"
+            app:destination="@id/mainFragment" />
+
+    </fragment>
+
+    <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.reminderapp.ui.auth.login.LoginFragment"
         android:label="Remind App"
@@ -71,6 +83,12 @@
             app:destination="@id/editRemindFragment"
             app:popUpTo="@id/mainFragment"
             app:popUpToInclusive="true"/>
+
+        <action
+            android:id="@+id/action_mainFragment_to_profileFragment"
+            app:destination="@id/profileFragment"
+            app:popUpTo="@+id/mainFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
 </navigation>

@@ -5,4 +5,10 @@
         <attr name="second_text" format="string"/>
         <attr name="tab_selection" format="integer"/>
     </declare-styleable>
+
+    <declare-styleable name="Toolbar">
+        <attr name="android:text"/>
+        <attr name="startIcon" format="reference"/>
+        <attr name="endIcon" format="reference"/>
+    </declare-styleable>
 </resources>

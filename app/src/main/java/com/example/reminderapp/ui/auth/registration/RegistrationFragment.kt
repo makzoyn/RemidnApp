@@ -26,7 +26,6 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
     }
 
     private fun bindUi() {
-        parentToolbar { isVisible = false }
         bindLoginInput()
         bindPasswordInput()
         bindEmailInput()

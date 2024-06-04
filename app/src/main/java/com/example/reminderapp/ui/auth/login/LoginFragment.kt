@@ -26,7 +26,6 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
     }
 
     private fun bindUi() {
-        parentToolbar { isVisible = false }
         bindLoginInput()
         bindPasswordInput()
         binding.registrationBtn.setOnClickListener {

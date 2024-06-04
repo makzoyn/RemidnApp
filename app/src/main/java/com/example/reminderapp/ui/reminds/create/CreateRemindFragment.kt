@@ -7,19 +7,16 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.reminderapp.R
 import com.example.reminderapp.common.base.BaseFragment
 import com.example.reminderapp.common.extensions.listenValue
-import com.example.reminderapp.common.extensions.parentToolbar
 import com.example.reminderapp.common.extensions.toggleVisability
 import com.example.reminderapp.databinding.FragmentCreateRemindsBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,13 +51,8 @@ class CreateRemindFragment: BaseFragment(R.layout.fragment_create_reminds) {
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
 
     private fun bindUi() {
-        parentToolbar {
-            isVisible = true
-            navigationIcon = R.drawable.ic_back
-            navigationIconClick = {
-                popBack()
-            }
-            title = getString(R.string.remind_create_title)
+        binding.toolbar.setNavigationActionToStartIcon {
+            popBack()
         }
         binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
             viewModel.checkBoxChanged(isChecked)
@@ -79,7 +71,7 @@ class CreateRemindFragment: BaseFragment(R.layout.fragment_create_reminds) {
             }
             viewModel.createRemindClicked()
         }
-        binding.title.addTextChangedListener {
+        binding.titleEdt.addTextChangedListener {
             viewModel.titleChanged(it.toString())
         }
         binding.description.addTextChangedListener {
