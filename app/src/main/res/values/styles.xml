@@ -30,6 +30,36 @@
         <item name="android:textColor">@color/inputTextColor</item>
     </style>
 
+    <style name="SearchFieldInput" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
+        <item name="materialThemeOverlay">@style/SearchFieldInputLayoutOverlay</item>
+        <item name="hintTextColor">@color/hintColor</item>
+        <item name="android:textColorHint">@color/hintColor</item>
+        <item name="boxStrokeColor">@color/strokeColor</item>
+        <item name="helperTextEnabled">false</item>
+        <item name="errorEnabled">false</item>
+        <item name="boxCollapsedPaddingTop">0dp</item>
+        <item name="hintEnabled">false</item>
+        <item name="android:paddingHorizontal">12dp</item>
+        <item name="android:paddingTop">12dp</item>
+    </style>
+
+    <style name="SearchFieldInputLayoutOverlay" parent="">
+        <item name="editTextStyle">@style/SearchFieldEditTextStyle</item>
+    </style>
+
+    <style name="SearchFieldEditTextStyle" parent="@style/Widget.MaterialComponents.TextInputEditText.FilledBox.Dense">
+        <item name="backgroundTint">@color/tabBackColor</item>
+        <item name="android:textAppearance">@style/HelperText</item>
+        <item name="android:hint">Поиск</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:drawableStart">@drawable/ic_search</item>
+        <item name="android:paddingVertical">12dp</item>
+        <item name="android:paddingHorizontal">12dp</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:inputType">text</item>
+    </style>
+
     <style name="PrimaryButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:insetTop">@dimen/button_inset</item>
         <item name="android:insetBottom">@dimen/button_inset</item>

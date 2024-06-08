@@ -2,6 +2,7 @@ package com.example.reminderapp.di
 
 import com.example.reminderapp.api.AuthApi
 import com.example.reminderapp.api.RemindsApi
+import com.example.reminderapp.api.UserApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,5 +24,11 @@ class ApiModule {
     internal fun provideRemindsApi(
         retrofit: Retrofit
     ): RemindsApi = retrofit.create(RemindsApi::class.java)
+
+    @Singleton
+    @Provides
+    internal fun provideUserApi(
+        retrofit: Retrofit
+    ): UserApi = retrofit.create(UserApi::class.java)
 
 }

@@ -11,10 +11,13 @@ import com.example.reminderapp.domain.model.RemindsModel
 import com.example.reminderapp.domain.model.mapToItems
 import com.example.reminderapp.domain.usecases.DeleteRemindUseCase
 import com.example.reminderapp.domain.usecases.GetAllRemindsUseCase
+import com.example.reminderapp.domain.usecases.GetRemindsByTitleUseCase
 import com.example.reminderapp.singleresult.NetworkErrorEvents
 import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushEvent
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushResult
+import com.example.reminderapp.singleresult.SearchEvents
+import com.example.reminderapp.singleresult.SearchResult
 import com.example.reminderapp.ui.reminds.adapter.model.RemindItem
 import com.example.reminderapp.ui.reminds.edit.EditRemindFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +49,9 @@ class MainRemindsViewModelImpl @Inject constructor(
     private val dateTimeFormatter: DateTimeFormatter,
     private val receiveMessageFromPushResult: ReceiveMessageFromPushResult,
     private val deleteRemindUseCase: DeleteRemindUseCase,
-    private val networkErrorResult: NetworkErrorResult
+    private val networkErrorResult: NetworkErrorResult,
+    private val searchResult: SearchResult,
+    private val getRemindsByTitleUseCase: GetRemindsByTitleUseCase
 ) : MainRemindsViewModel, ViewModel() {
 
 
@@ -60,15 +65,46 @@ class MainRemindsViewModelImpl @Inject constructor(
 
     init {
         getAllReminds()
+        subscribeOnRemindDeleteFromPushResult()
+        subscribeOnSearchResult()
+    }
+
+    private fun subscribeOnSearchResult() {
         viewModelScope.launch {
-            subscribeOnRemindDeleteFromPushResult()
+            searchResult.events.collect { event ->
+                if (event is SearchEvents.QueryChanged) {
+                    getRemindsByTitle(event.text)
+                }
+            }
         }
     }
 
+    private fun getRemindsByTitle(title: String) {
+        getRemindsByTitleUseCase(title)
+            .onEach { state ->
+                remindsState.emit(state)
+                state.onSuccess { remindsModel ->
+                    val sortedModel = remindsModel.reminds
+                        .sortedBy { it.date }
+                        .sortedBy { it.isNotified }
+                    remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
+                }
+                state.onError { error ->
+                    networkErrorResult.postEvent(
+                        NetworkErrorEvents.ShowErrorDialog(
+                            "Ошибка",
+                            error.errorMessage
+                        )
+                    )
+                }
+            }.launchIn(viewModelScope)
+    }
+
+
     override fun deleteSelectedReminds() {
         remindsData.value?.filter { remind ->
-                remind.isSelected
-            }?.map { it.id }?.let {
+            remind.isSelected
+        }?.map { it.id }?.let {
             deleteRemindUseCase(it)
                 .onEach { state ->
                     deleteState.emit(state)
@@ -80,7 +116,12 @@ class MainRemindsViewModelImpl @Inject constructor(
     }
 
     override fun editRemind(id: Int) {
-        navigationFlow.update { Pair(R.id.action_mainFragment_to_editRemindFragment, EditRemindFragment.Param(id)) }
+        navigationFlow.update {
+            Pair(
+                R.id.action_mainFragment_to_editRemindFragment,
+                EditRemindFragment.Param(id)
+            )
+        }
     }
 
     override fun unselectAll() {
@@ -104,10 +145,12 @@ class MainRemindsViewModelImpl @Inject constructor(
         }
     }
 
-    private suspend fun subscribeOnRemindDeleteFromPushResult() {
-        receiveMessageFromPushResult.events.collect { event ->
-            if (event is ReceiveMessageFromPushEvent.RemindReceived) {
-                refreshReminds()
+    private fun subscribeOnRemindDeleteFromPushResult() {
+        viewModelScope.launch {
+            receiveMessageFromPushResult.events.collect { event ->
+                if (event is ReceiveMessageFromPushEvent.RemindReceived) {
+                    refreshReminds()
+                }
             }
         }
     }
@@ -130,7 +173,7 @@ class MainRemindsViewModelImpl @Inject constructor(
                         .sortedBy { it.isNotified }
                     remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
                 }
-                state.onError {  error ->
+                state.onError { error ->
                     networkErrorResult.postEvent(
                         NetworkErrorEvents.ShowErrorDialog(
                             title = "Ошибка",

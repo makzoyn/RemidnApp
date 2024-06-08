@@ -11,10 +11,13 @@ import com.example.reminderapp.domain.model.RemindsModel
 import com.example.reminderapp.domain.model.mapToItems
 import com.example.reminderapp.domain.usecases.DeleteRemindUseCase
 import com.example.reminderapp.domain.usecases.GetAllNotesUseCase
+import com.example.reminderapp.domain.usecases.GetNotesByTitleUseCase
 import com.example.reminderapp.singleresult.NetworkErrorEvents
 import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushEvent
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushResult
+import com.example.reminderapp.singleresult.SearchEvents
+import com.example.reminderapp.singleresult.SearchResult
 import com.example.reminderapp.ui.reminds.adapter.model.RemindItem
 import com.example.reminderapp.ui.reminds.edit.EditRemindFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +49,9 @@ class MainNotesViewModelImpl @Inject constructor(
     private val dateTimeFormatter: DateTimeFormatter,
     private val receiveMessageFromPushResult: ReceiveMessageFromPushResult,
     private val deleteRemindUseCase: DeleteRemindUseCase,
-    private val networkErrorResult: NetworkErrorResult
+    private val networkErrorResult: NetworkErrorResult,
+    private val searchResult: SearchResult,
+    private val getNotesByTitleUseCase: GetNotesByTitleUseCase
 ) : MainNotesViewModel, ViewModel() {
 
 
@@ -54,21 +59,52 @@ class MainNotesViewModelImpl @Inject constructor(
     private val remindsState: MutableStateFlow<State<RemindsModel>> = MutableStateFlow(State.Idle)
     override val navigationFlow: MutableStateFlow<Pair<Int?, Any?>?> = MutableStateFlow(null)
     private val deleteState: MutableStateFlow<State<Unit>> = MutableStateFlow(State.Idle)
+
     override val loadingState: Flow<Boolean>
         get() = remindsState.map { it.isLoading() }
     override val deleteVisibilityState: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
         getAllNotes()
+        subscribeOnRemindDeleteFromPushResult()
+        subscribeOnSearchResult()
+    }
+
+    private fun subscribeOnSearchResult() {
         viewModelScope.launch {
-            subscribeOnRemindDeleteFromPushResult()
+            searchResult.events.collect { event ->
+                if (event is SearchEvents.QueryChanged) {
+                    getNotesByTitle(event.text)
+                }
+            }
         }
+    }
+
+    private fun getNotesByTitle(title: String) {
+        getNotesByTitleUseCase(title)
+            .onEach { state ->
+                remindsState.emit(state)
+                state.onSuccess { remindsModel ->
+                    val sortedModel = remindsModel.reminds
+                        .sortedBy { it.date }
+                        .sortedBy { it.isNotified }
+                    remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
+                }
+                state.onError { error ->
+                    networkErrorResult.postEvent(
+                        NetworkErrorEvents.ShowErrorDialog(
+                            "Ошибка",
+                            error.errorMessage
+                        )
+                    )
+                }
+            }.launchIn(viewModelScope)
     }
 
     override fun deleteSelectedReminds() {
         remindsData.value?.filter { remind ->
-                remind.isSelected
-            }?.map { it.id }?.let {
+            remind.isSelected
+        }?.map { it.id }?.let {
             deleteRemindUseCase(it)
                 .onEach { state ->
                     deleteState.emit(state)
@@ -80,7 +116,12 @@ class MainNotesViewModelImpl @Inject constructor(
     }
 
     override fun editRemind(id: Int) {
-        navigationFlow.update { Pair(R.id.action_mainFragment_to_editRemindFragment, EditRemindFragment.Param(id)) }
+        navigationFlow.update {
+            Pair(
+                R.id.action_mainFragment_to_editRemindFragment,
+                EditRemindFragment.Param(id)
+            )
+        }
     }
 
     override fun unselectAll() {
@@ -104,10 +145,12 @@ class MainNotesViewModelImpl @Inject constructor(
         }
     }
 
-    private suspend fun subscribeOnRemindDeleteFromPushResult() {
-        receiveMessageFromPushResult.events.collect { event ->
-            if (event is ReceiveMessageFromPushEvent.RemindReceived) {
-                refreshReminds()
+    private fun subscribeOnRemindDeleteFromPushResult() {
+        viewModelScope.launch {
+            receiveMessageFromPushResult.events.collect { event ->
+                if (event is ReceiveMessageFromPushEvent.RemindReceived) {
+                    refreshReminds()
+                }
             }
         }
     }
@@ -130,7 +173,7 @@ class MainNotesViewModelImpl @Inject constructor(
                         .sortedBy { it.isNotified }
                     remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
                 }
-                state.onError {  error ->
+                state.onError { error ->
                     networkErrorResult.postEvent(
                         NetworkErrorEvents.ShowErrorDialog(
                             title = "Ошибка",

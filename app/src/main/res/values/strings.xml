@@ -38,4 +38,6 @@
     <string name="reminds">Напоминания</string>
     <string name="logout">Выйти из профиля</string>
     <string name="edit_profile">Редактировать профиль</string>
+    <string name="confirm_edit">Подтвердить</string>
+    <string name="profile">Профиль</string>
 </resources>

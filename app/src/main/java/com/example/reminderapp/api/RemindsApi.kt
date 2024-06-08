@@ -11,10 +11,20 @@ import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface RemindsApi {
     @GET("reminds/fetch")
     suspend fun getAllReminds(): NetworkResult<RemindsResponse>
+
+    @GET("reminds/fetch/search")
+    suspend fun getRemindsByTitle(
+        @Query("title") title: String
+    ): NetworkResult<RemindsResponse>
+    @GET("reminds/notes/search")
+    suspend fun getNotesByTitle(
+        @Query("title") title: String
+    ): NetworkResult<RemindsResponse>
 
     @GET("reminds/notes")
     suspend fun getAllNotes(): NetworkResult<RemindsResponse>

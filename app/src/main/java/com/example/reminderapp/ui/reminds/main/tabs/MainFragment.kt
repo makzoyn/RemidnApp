@@ -3,7 +3,9 @@ package com.example.reminderapp.ui.reminds.main.tabs
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.reminderapp.R
 import com.example.reminderapp.common.TabSelectedListener
@@ -14,6 +16,8 @@ import com.example.reminderapp.databinding.FragmentMainBinding
 import com.example.reminderapp.ui.reminds.adapter.ViewPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment: BaseFragment(R.layout.fragment_main), TabSelectedListener {
@@ -34,10 +38,19 @@ class MainFragment: BaseFragment(R.layout.fragment_main), TabSelectedListener {
         parentToolbar {
             isVisible = false
         }
+        binding.searchInputField.addTextChangedListener {
+            viewModel.searchQueryChanged(it.toString())
+        }
     }
     private fun observeViewModel() = with(viewModel) {
         tabSelection.listenValue(::prepareViewPager)
         navigationFlow.listenValue(::onNavigate)
+        searchQuery.listenValue(::bindSearchFieldValue)
+    }
+
+    private fun bindSearchFieldValue(text: String?) {
+        binding.searchInputField.setText(text)
+        binding.searchInputField.setSelection(binding.searchInputField.length())
     }
     private fun prepareViewPager(position: Int) {
         val adapter = ViewPagerAdapter(this, position)

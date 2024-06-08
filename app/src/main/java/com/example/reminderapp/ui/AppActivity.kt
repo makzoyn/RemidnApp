@@ -15,6 +15,8 @@ import com.example.reminderapp.common.extensions.listenValue
 import com.example.reminderapp.common.util.DialogUtils
 import com.example.reminderapp.databinding.ActivityAppBinding
 import com.example.reminderapp.repository.PreferencesDataStoreRepository
+import com.example.reminderapp.singleresult.LogoutEvents
+import com.example.reminderapp.singleresult.LogoutResult
 import com.example.reminderapp.singleresult.NetworkErrorEvents
 import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushEvent
@@ -24,8 +26,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AppActivity: BaseActivity(R.layout.activity_app) {
-    private var navController : NavController? = null
+class AppActivity : BaseActivity(R.layout.activity_app) {
+    private var navController: NavController? = null
 
     val viewModel: AppViewModel by viewModels<AppViewModelImpl>()
     private val binding by viewBinding(ActivityAppBinding::bind)
@@ -39,24 +41,41 @@ class AppActivity: BaseActivity(R.layout.activity_app) {
     @Inject
     lateinit var networkErrorResult: NetworkErrorResult
 
+    @Inject
+    lateinit var logoutResult: LogoutResult
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-        lifecycleScope.launch {
-            subscribeOnDeleteMessageResult()
-            subscribeOnNetworkErrorResult()
-        }
+        subscribeOnDeleteMessageResult()
+        subscribeOnNetworkErrorResult()
+        subscribeLogOutEventResult()
         observeViewModel()
     }
 
-    private suspend fun subscribeOnNetworkErrorResult() {
-        networkErrorResult.events.collect { event ->
-            when(event) {
-                is NetworkErrorEvents.ShowErrorDialog -> {
-                    showMessage(message = event.message, title = event.title)
+    private fun subscribeOnNetworkErrorResult() {
+        lifecycleScope.launch {
+            networkErrorResult.events.collect { event ->
+                when (event) {
+                    is NetworkErrorEvents.ShowErrorDialog -> {
+                        showMessage(message = event.message, title = event.title)
+                    }
+
+                    is NetworkErrorEvents.TokenError -> {
+                        preferencesDataStoreRepository.clearPreferences()
+                        recreate()
+                    }
                 }
-                is NetworkErrorEvents.TokenError -> {
+            }
+        }
+    }
+
+    private fun subscribeLogOutEventResult() {
+        lifecycleScope.launch {
+            logoutResult.events.collect { event ->
+                if (event is LogoutEvents.Logout) {
                     preferencesDataStoreRepository.clearPreferences()
                     recreate()
                 }
@@ -88,10 +107,12 @@ class AppActivity: BaseActivity(R.layout.activity_app) {
         }
     }
 
-    private suspend fun subscribeOnDeleteMessageResult() {
-        receiveMessageFromPushResult.events.collect { event ->
-            if(event is ReceiveMessageFromPushEvent.ReceivePushEvent) {
-                viewModel.deleteRemindAfterPush(event.id)
+    private fun subscribeOnDeleteMessageResult() {
+        lifecycleScope.launch {
+            receiveMessageFromPushResult.events.collect { event ->
+                if (event is ReceiveMessageFromPushEvent.ReceivePushEvent) {
+                    viewModel.deleteRemindAfterPush(event.id)
+                }
             }
         }
     }

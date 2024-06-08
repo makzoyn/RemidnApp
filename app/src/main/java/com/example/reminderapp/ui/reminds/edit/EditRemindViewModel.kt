@@ -115,7 +115,8 @@ class EditRemindViewModelImpl @Inject constructor(
             title = titleData.value,
             description = descriptionData.value,
             time = timeData.value,
-            date = dateData.value
+            date = dateData.value,
+            needToNotified = checkBoxState.value
         ).onEach { state ->
             createRemindState.emit(state)
             state.onSuccess {

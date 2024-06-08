@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.withStyledAttributes
 import com.example.reminderapp.R
@@ -22,10 +23,10 @@ class Toolbar @JvmOverloads constructor(
             val text = getString(R.styleable.Toolbar_android_text).orEmpty()
             val startIcon = getDrawable(R.styleable.Toolbar_startIcon)
             val endIcon = getDrawable(R.styleable.Toolbar_endIcon)
-
             updateText(text)
             updateStartIcon(startIcon)
             updateEndIcon(endIcon)
+
         }
     }
 

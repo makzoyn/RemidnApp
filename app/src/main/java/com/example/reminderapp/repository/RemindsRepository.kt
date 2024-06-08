@@ -4,15 +4,24 @@ import com.example.reminderapp.api.RemindsApi
 import com.example.reminderapp.api.model.requests.CreateRemindRequest
 import com.example.reminderapp.api.model.requests.DeleteRemindsRequest
 import com.example.reminderapp.api.model.requests.UpdateRemindRequest
+import com.example.reminderapp.api.model.responses.RemindsResponse
 import com.example.reminderapp.api.model.responses.mapToDomain
 import com.example.reminderapp.common.extensions.mapResult
 import com.example.reminderapp.common.networkresult.NetworkResult
 import com.example.reminderapp.domain.model.RemindModel
 import com.example.reminderapp.domain.model.RemindsModel
+import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface RemindsRepository {
     suspend fun getAllReminds(): NetworkResult<RemindsModel>
     suspend fun getAllNotes(): NetworkResult<RemindsModel>
+    suspend fun getRemindsByTitle(
+        title: String
+    ): NetworkResult<RemindsModel>
+    suspend fun getNotesByTitle(
+        title: String
+    ): NetworkResult<RemindsModel>
     suspend fun createRemind(
         createRemindRequest: CreateRemindRequest
     ): NetworkResult<RemindModel>
@@ -39,6 +48,12 @@ class RemindsRepositoryImpl(
 
     override suspend fun getAllNotes(): NetworkResult<RemindsModel> =
         api.getAllNotes().mapResult { it.mapToDomain() }
+
+    override suspend fun getRemindsByTitle(title: String): NetworkResult<RemindsModel> =
+        api.getRemindsByTitle(title).mapResult { it.mapToDomain() }
+
+    override suspend fun getNotesByTitle(title: String): NetworkResult<RemindsModel> =
+        api.getNotesByTitle(title).mapResult { it.mapToDomain() }
 
     override suspend fun createRemind(
         createRemindRequest: CreateRemindRequest
