@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/registerFragment">
 
     <fragment
         android:id="@+id/registerFragment"
@@ -19,6 +19,17 @@
             app:popUpToInclusive="true"
             app:destination="@id/mainFragment" />
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/onBoaedingFragment"
+        android:name="com.example.reminderapp.ui.onboarding.OnBoardingFragment"
+        android:label="Remind App"
+        tools:layout="@layout/fragment_on_boarding" >
+        <action
+            android:id="@+id/action_onBoarding_to_main"
+            app:popUpToInclusive="true"
+            app:destination="@id/mainFragment"/>
     </fragment>
 
     <fragment

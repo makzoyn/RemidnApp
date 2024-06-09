@@ -40,4 +40,5 @@
     <string name="edit_profile">Редактировать профиль</string>
     <string name="confirm_edit">Подтвердить</string>
     <string name="profile">Профиль</string>
+    <string name="on_next_onboarding">Дальше</string>
 </resources>

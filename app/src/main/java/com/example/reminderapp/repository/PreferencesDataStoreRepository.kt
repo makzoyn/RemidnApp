@@ -1,6 +1,7 @@
 package com.example.reminderapp.repository
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -28,6 +29,8 @@ interface PreferencesDataStoreRepository {
     suspend fun clearPreferences()
     suspend fun saveTab(position: Int)
     suspend fun getTab(): Int
+    suspend fun getOnBoardingState(): Boolean
+    suspend fun updateOnBoardingState(isOnBoarder: Boolean)
 }
 
 class PreferencesDataStoreRepositoryImpl @Inject constructor(
@@ -92,6 +95,16 @@ class PreferencesDataStoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateOnBoardingState(isOnBoarder: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[ONBOARDING_KEY] = isOnBoarder
+        }
+    }
+
+    override suspend fun getOnBoardingState(): Boolean =
+        dataStore.data.first()[ONBOARDING_KEY] ?: false
+
+
     private suspend fun clearToken() {
         dataStore.edit { preferences ->
             preferences.remove(USER_TOKEN)
@@ -110,11 +123,18 @@ class PreferencesDataStoreRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun clearOnBoardingState() {
+        dataStore.edit { preferences ->
+            preferences.remove(ONBOARDING_KEY)
+        }
+    }
+
 
     override suspend fun clearPreferences() {
         clearToken()
         clearFCMToken()
         clearTab()
+        clearOnBoardingState()
     }
 
     override suspend fun saveTab(position: Int) {
@@ -131,5 +151,6 @@ class PreferencesDataStoreRepositoryImpl @Inject constructor(
         private val USER_TOKEN = stringPreferencesKey("USER_TOKEN")
         private val FIREBASE_TOKEN_KEY = stringPreferencesKey("FIREBASE_TOKEN_KEY")
         private val TAB_KEY = stringPreferencesKey("TAB_KEY")
+        private val ONBOARDING_KEY = booleanPreferencesKey("ONBOARDING_KEY")
     }
 }

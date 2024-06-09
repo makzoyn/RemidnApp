@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 interface AppViewModel {
@@ -41,13 +42,14 @@ class AppViewModelImpl @Inject constructor(
     }
 
     private fun subscribeOnToken() {
+        val isOnBoarder = runBlocking { preferencesRepository.getOnBoardingState() }
         preferencesRepository.tokenStream
             .distinctUntilChanged()
             .onEach {
-                if (it.isNotEmpty()) {
-                    navigationFlow.emit(R.id.mainFragment)
-                } else {
-                    navigationFlow.emit(R.id.registerFragment)
+                when {
+                    it.isNotEmpty() && isOnBoarder.not() -> navigationFlow.emit(R.id.onBoaedingFragment)
+                    it.isNotEmpty() && isOnBoarder -> navigationFlow.emit(R.id.mainFragment)
+                    else -> navigationFlow.emit(R.id.registerFragment)
                 }
             }.launchIn(viewModelScope)
     }
