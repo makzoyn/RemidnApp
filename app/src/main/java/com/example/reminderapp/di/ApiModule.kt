@@ -17,7 +17,7 @@ class ApiModule {
     @Provides
     internal fun provideAuthApi(
         retrofit: Retrofit
-    ): AuthApi =retrofit.create(AuthApi::class.java)
+    ): AuthApi = retrofit.create(AuthApi::class.java)
 
     @Singleton
     @Provides

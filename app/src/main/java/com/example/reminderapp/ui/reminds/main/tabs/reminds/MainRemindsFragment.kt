@@ -17,6 +17,7 @@ import com.example.reminderapp.ui.reminds.adapter.MainRemindsSelectionAdapter
 import com.example.reminderapp.ui.reminds.adapter.decoration.RemindsItemDecoration
 import com.example.reminderapp.ui.reminds.adapter.model.RemindItem
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.launchIn
 
 @AndroidEntryPoint
 open class MainRemindsFragment : BaseFragment(R.layout.fragment_main_reminds) {
@@ -73,6 +74,10 @@ open class MainRemindsFragment : BaseFragment(R.layout.fragment_main_reminds) {
         }
     }
 
+    private fun bindConnectionUI(isConnected: Boolean) {
+        binding.addRemindButton.toggleVisability(isConnected)
+    }
+
     private fun observeViewModel() = with(viewModel) {
         loadingState.listenValue {
             if (binding.swipeToRefresh.isRefreshing) {
@@ -83,6 +88,7 @@ open class MainRemindsFragment : BaseFragment(R.layout.fragment_main_reminds) {
                 binding.swipeToRefresh.isRefreshing = false
             }
         }
+        internetConnectionState.listenValue(::bindConnectionUI)
         remindsData.listenValue(::bindAdapter)
         navigationFlow.listenValue(::onNavigate)
         deleteVisibilityState.listenValue(binding.deleteRemindsButton::toggleVisability)

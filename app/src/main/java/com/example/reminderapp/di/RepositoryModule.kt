@@ -3,6 +3,7 @@ package com.example.reminderapp.di
 import com.example.reminderapp.api.AuthApi
 import com.example.reminderapp.api.RemindsApi
 import com.example.reminderapp.api.UserApi
+import com.example.reminderapp.database.RemindDao
 import com.example.reminderapp.repository.AuthRepository
 import com.example.reminderapp.repository.AuthRepositoryImpl
 import com.example.reminderapp.repository.RemindsRepository
@@ -27,8 +28,9 @@ class RepositoryModule {
     @Singleton
     @Provides
     internal fun provideRemindsRepository(
-        api: RemindsApi
-    ): RemindsRepository = RemindsRepositoryImpl(api)
+        api: RemindsApi,
+        remindDao: RemindDao
+    ): RemindsRepository = RemindsRepositoryImpl(api, remindDao)
 
     @Singleton
     @Provides

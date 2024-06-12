@@ -22,10 +22,13 @@ interface PreferencesDataStoreRepository {
     val usedDataStore: Flow<String>
     val tokenStream: Flow<String>
     val firebaseTokenStream: Flow<String>
+    val internetConnectionStream: Flow<Boolean>
     suspend fun fetchFirebaseToken(): String
     suspend fun updateFirebaseToken(token: String)
     suspend fun updateUserToken(token: String)
     suspend fun getToken(): String
+    suspend fun updateInternetConnectionState(haveConnection: Boolean)
+    suspend fun getInternetConnectionState(): Boolean
     suspend fun clearPreferences()
     suspend fun saveTab(position: Int)
     suspend fun getTab(): Int
@@ -104,6 +107,26 @@ class PreferencesDataStoreRepositoryImpl @Inject constructor(
     override suspend fun getOnBoardingState(): Boolean =
         dataStore.data.first()[ONBOARDING_KEY] ?: false
 
+    override suspend fun getInternetConnectionState(): Boolean =
+        dataStore.data.first()[INTERNET_CONNECTION_STATE] ?: false
+
+    override val internetConnectionStream: Flow<Boolean> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[INTERNET_CONNECTION_STATE] ?: false
+        }
+
+    override suspend fun updateInternetConnectionState(haveConnection: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[INTERNET_CONNECTION_STATE] = haveConnection
+        }
+    }
 
     private suspend fun clearToken() {
         dataStore.edit { preferences ->
@@ -152,5 +175,6 @@ class PreferencesDataStoreRepositoryImpl @Inject constructor(
         private val FIREBASE_TOKEN_KEY = stringPreferencesKey("FIREBASE_TOKEN_KEY")
         private val TAB_KEY = stringPreferencesKey("TAB_KEY")
         private val ONBOARDING_KEY = booleanPreferencesKey("ONBOARDING_KEY")
+        private val INTERNET_CONNECTION_STATE = booleanPreferencesKey("INTERNET_CONNECTION_STATE")
     }
 }

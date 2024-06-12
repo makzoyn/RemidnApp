@@ -1,5 +1,6 @@
 package com.example.reminderapp.api.model.responses
 
+import com.example.reminderapp.database.RemindEntity
 import com.example.reminderapp.domain.model.RemindModel
 import com.google.gson.annotations.SerializedName
 
@@ -23,4 +24,17 @@ fun RemindResponse.mapToDomain() = RemindModel(
     needToNotified = needToNotified
 )
 
+fun RemindResponse.mapToDao() = RemindEntity(
+    id = id,
+    title = title,
+    description = description,
+    time = time,
+    date = date,
+    isNotified = isNotified,
+    needToNotified = needToNotified
+)
+
 fun List<RemindResponse>.toDomainList() = map { it.mapToDomain() }
+
+fun List<RemindResponse>.toDaoList() = map { it.mapToDao() }
+

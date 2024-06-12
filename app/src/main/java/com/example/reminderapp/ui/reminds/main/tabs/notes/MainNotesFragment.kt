@@ -8,7 +8,6 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.reminderapp.R
 import com.example.reminderapp.common.base.BaseFragment
 import com.example.reminderapp.common.extensions.listenValue
-import com.example.reminderapp.common.extensions.parentToolbar
 import com.example.reminderapp.common.extensions.toggleVisability
 import com.example.reminderapp.databinding.FragmentMainRemindsBinding
 import com.example.reminderapp.ui.reminds.adapter.MainRemindsAdapter
@@ -53,12 +52,16 @@ class MainNotesFragment : BaseFragment(R.layout.fragment_main_notes) {
         )
     }
 
+    private fun bindConnectionUI(isConnected: Boolean) {
+        binding.addRemindButton.toggleVisability(isConnected)
+    }
+
     private fun bindUi() {
         binding.deleteRemindsButton.setOnClickListener {
             viewModel.deleteSelectedReminds()
         }
         binding.swipeToRefresh.setOnRefreshListener {
-            viewModel.refreshReminds()
+            viewModel.refreshNotes()
         }
         binding.addRemindButton.setOnClickListener {
             viewModel.createRemindClicked()
@@ -82,6 +85,7 @@ class MainNotesFragment : BaseFragment(R.layout.fragment_main_notes) {
                 binding.swipeToRefresh.isRefreshing = false
             }
         }
+        internetConnectionState.listenValue(::bindConnectionUI)
         remindsData.listenValue(::bindAdapter)
         navigationFlow.listenValue(::onNavigate)
         deleteVisibilityState.listenValue(binding.deleteRemindsButton::toggleVisability)

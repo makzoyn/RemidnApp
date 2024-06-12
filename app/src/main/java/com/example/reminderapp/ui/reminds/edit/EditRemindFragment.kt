@@ -58,12 +58,21 @@ class EditRemindFragment: BaseFragment(R.layout.fragment_update_reminds) {
             binding.addAlarmGroup.toggleVisability(it)
             binding.checkbox.isChecked = it
         }
+        internetConnectionState.listenValue(::bindConnectionUi)
         uiTimeData.listenValue(binding.tvTime::setText)
         uiDateData.listenValue(binding.tvDate::setText)
         titleDataFirst.listenValue(binding.titleEdt::setText)
         descriptionDataFirst.listenValue(binding.description::setText)
         navigationFlow.listenValue(::onNavigate)
         loadingState.listenValue(binding.progressLayout::toggleVisability)
+    }
+
+    private fun bindConnectionUi(isConnected: Boolean) {
+        binding.checkbox.toggleVisability(isConnected)
+        binding.setAlarmBtn.text = getString(R.string.back)
+        binding.setAlarmBtn.setOnClickListener {
+            popBack()
+        }
     }
 
     private fun openTimePickerDialog() {

@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reminderapp.R
+import com.example.reminderapp.common.extensions.onError
 import com.example.reminderapp.common.extensions.onSuccess
 import com.example.reminderapp.common.extensions.requireParam
 import com.example.reminderapp.common.formatters.DateTimeFormatter
@@ -12,13 +13,19 @@ import com.example.reminderapp.common.state.State
 import com.example.reminderapp.domain.model.RemindModel
 import com.example.reminderapp.domain.usecases.GetRemindUseCase
 import com.example.reminderapp.domain.usecases.UpdateRemindUseCase
+import com.example.reminderapp.repository.PreferencesDataStoreRepository
+import com.example.reminderapp.repository.RemindsRepository
+import com.example.reminderapp.singleresult.NetworkErrorEvents
+import com.example.reminderapp.singleresult.NetworkErrorResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface EditRemindViewModel {
@@ -29,6 +36,7 @@ interface EditRemindViewModel {
     val loadingState: Flow<Boolean>
     val titleDataFirst: Flow<String>
     val descriptionDataFirst: Flow<String?>
+    val internetConnectionState: Flow<Boolean>
     fun updateRemindClicked()
     fun titleChanged(title: String)
     fun descriptionChanged(description: String)
@@ -37,13 +45,17 @@ interface EditRemindViewModel {
     fun remindDateChanged(date: String)
 
 }
+
 @HiltViewModel
 class EditRemindViewModelImpl @Inject constructor(
     private val dateTimeFormatter: DateTimeFormatter,
     private val getRemindUseCase: GetRemindUseCase,
     private val updateRemindUseCase: UpdateRemindUseCase,
+    private val preferencesRepository: PreferencesDataStoreRepository,
+    private val remindsRepository: RemindsRepository,
+    private val networkErrorResult: NetworkErrorResult,
     savedStateHandle: SavedStateHandle
-): EditRemindViewModel, ViewModel() {
+) : EditRemindViewModel, ViewModel() {
     override val checkBoxState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val titleData: MutableStateFlow<String> = MutableStateFlow("")
     override val titleDataFirst: MutableStateFlow<String> = MutableStateFlow("")
@@ -54,32 +66,79 @@ class EditRemindViewModelImpl @Inject constructor(
     override val uiTimeData: MutableStateFlow<String> = MutableStateFlow("")
     override val uiDateData: MutableStateFlow<String> = MutableStateFlow("")
     override val navigationFlow: MutableStateFlow<Int?> = MutableStateFlow(null)
-    private val createRemindState: MutableStateFlow<State<RemindModel>> = MutableStateFlow(State.Idle)
+    private val createRemindState: MutableStateFlow<State<RemindModel>> =
+        MutableStateFlow(State.Idle)
     private val getRemindState: MutableStateFlow<State<RemindModel>> = MutableStateFlow(State.Idle)
+    override val internetConnectionState: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     override val loadingState: Flow<Boolean>
         get() = createRemindState.map { it.isLoading() }
 
     private val id = savedStateHandle.requireParam<EditRemindFragment.Param>().id
+
     init {
         getRemind()
+        subscribeOnInternetConnectionStream()
+    }
+
+    private fun subscribeOnInternetConnectionStream() {
+        preferencesRepository.internetConnectionStream
+            .distinctUntilChanged()
+            .onEach {
+                internetConnectionState.emit(it)
+            }.launchIn(viewModelScope)
     }
 
     private fun getRemind() {
         getRemindUseCase(id)
             .onEach { state ->
                 getRemindState.emit(state)
-                state.onSuccess {  remindModel ->
+                state.onSuccess { remindModel ->
                     timeData.update { remindModel.time }
                     dateData.update { remindModel.date }
                     titleDataFirst.update { remindModel.title }
                     descriptionDataFirst.update { remindModel.description }
-                    uiTimeData.update { remindModel.time?.let { dateTimeFormatter.formatTime(remindModel.time.take(2).toInt(), remindModel.time.take(5).takeLast(2).toInt()) } ?: "Выберите время"}
+                    uiTimeData.update {
+                        remindModel.time?.let {
+                            dateTimeFormatter.formatTime(
+                                remindModel.time.take(2).toInt(),
+                                remindModel.time.take(5).takeLast(2).toInt()
+                            )
+                        } ?: "Выберите время"
+                    }
                     uiDateData.update { remindModel.date ?: "Выберите дату" }
                     checkBoxState.update { remindModel.time != null && remindModel.date != null }
+                }
+                state.onError { error ->
+                    getRemindFromRoom()
+                    networkErrorResult.postEvent(
+                        NetworkErrorEvents.ShowErrorDialog(
+                            title = "Ошибка",
+                            message = error.errorMessage
+                        )
+                    )
                 }
             }.launchIn(viewModelScope)
     }
 
+    private suspend fun getRemindFromRoom() {
+        remindsRepository.getRemindByIdFromRoom(id)?.let { remindModel ->
+            timeData.update { remindModel.time }
+            dateData.update { remindModel.date }
+            titleDataFirst.update { remindModel.title }
+            descriptionDataFirst.update { remindModel.description }
+            uiTimeData.update {
+                remindModel.time?.let {
+                    dateTimeFormatter.formatTime(
+                        remindModel.time.take(2).toInt(),
+                        remindModel.time.take(5).takeLast(2).toInt()
+                    )
+                } ?: "Выберите время"
+            }
+            uiDateData.update { remindModel.date ?: "Выберите дату" }
+            checkBoxState.update { remindModel.time != null && remindModel.date != null }
+        }
+    }
     override fun checkBoxChanged(isChecked: Boolean) {
         checkBoxState.update { isChecked }
     }
@@ -95,7 +154,7 @@ class EditRemindViewModelImpl @Inject constructor(
     override fun remindTimeChanged(hour: Int, minute: Int) {
         timeData.update {
             val hourSpan = SpannableStringBuilder()
-            if(hour < 10) {
+            if (hour < 10) {
                 hourSpan.append("0")
             }
             hourSpan.append("$hour:$minute:00")

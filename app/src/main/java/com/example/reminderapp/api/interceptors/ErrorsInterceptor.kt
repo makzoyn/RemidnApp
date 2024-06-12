@@ -33,6 +33,10 @@ class ErrorsInterceptor @Inject constructor(
                     return response
                 }
             }
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                preferencesDataStore.updateInternetConnectionState(true)
+            }
         }
         return response
     }

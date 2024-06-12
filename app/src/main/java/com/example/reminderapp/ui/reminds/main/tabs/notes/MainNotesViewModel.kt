@@ -12,6 +12,8 @@ import com.example.reminderapp.domain.model.mapToItems
 import com.example.reminderapp.domain.usecases.DeleteRemindUseCase
 import com.example.reminderapp.domain.usecases.GetAllNotesUseCase
 import com.example.reminderapp.domain.usecases.GetNotesByTitleUseCase
+import com.example.reminderapp.repository.PreferencesDataStoreRepository
+import com.example.reminderapp.repository.RemindsRepository
 import com.example.reminderapp.singleresult.NetworkErrorEvents
 import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushEvent
@@ -23,6 +25,7 @@ import com.example.reminderapp.ui.reminds.edit.EditRemindFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -35,10 +38,11 @@ interface MainNotesViewModel {
     val remindsData: Flow<List<RemindItem>?>
     val navigationFlow: Flow<Pair<Int?, Any?>?>
     val deleteVisibilityState: Flow<Boolean>
+    val internetConnectionState: Flow<Boolean>
     fun selectedChanged(id: Int)
     fun editRemind(id: Int)
     fun unselectAll()
-    fun refreshReminds()
+    fun refreshNotes()
     fun createRemindClicked()
     fun deleteSelectedReminds()
 }
@@ -51,10 +55,12 @@ class MainNotesViewModelImpl @Inject constructor(
     private val deleteRemindUseCase: DeleteRemindUseCase,
     private val networkErrorResult: NetworkErrorResult,
     private val searchResult: SearchResult,
-    private val getNotesByTitleUseCase: GetNotesByTitleUseCase
+    private val getNotesByTitleUseCase: GetNotesByTitleUseCase,
+    private val remindsRepository: RemindsRepository,
+    private val preferencesRepository: PreferencesDataStoreRepository
 ) : MainNotesViewModel, ViewModel() {
 
-
+    override val internetConnectionState: MutableStateFlow<Boolean> = MutableStateFlow(true)
     override val remindsData: MutableStateFlow<List<RemindItem>?> = MutableStateFlow(null)
     private val remindsState: MutableStateFlow<State<RemindsModel>> = MutableStateFlow(State.Idle)
     override val navigationFlow: MutableStateFlow<Pair<Int?, Any?>?> = MutableStateFlow(null)
@@ -68,6 +74,15 @@ class MainNotesViewModelImpl @Inject constructor(
         getAllNotes()
         subscribeOnRemindDeleteFromPushResult()
         subscribeOnSearchResult()
+        subscribeOnInternetConnectionStream()
+    }
+
+    private fun subscribeOnInternetConnectionStream() {
+        preferencesRepository.internetConnectionStream
+            .distinctUntilChanged()
+            .onEach {
+                internetConnectionState.emit(it)
+            }.launchIn(viewModelScope)
     }
 
     private fun subscribeOnSearchResult() {
@@ -81,24 +96,31 @@ class MainNotesViewModelImpl @Inject constructor(
     }
 
     private fun getNotesByTitle(title: String) {
-        getNotesByTitleUseCase(title)
-            .onEach { state ->
-                remindsState.emit(state)
-                state.onSuccess { remindsModel ->
-                    val sortedModel = remindsModel.reminds
-                        .sortedBy { it.date }
-                        .sortedBy { it.isNotified }
-                    remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
-                }
-                state.onError { error ->
-                    networkErrorResult.postEvent(
-                        NetworkErrorEvents.ShowErrorDialog(
-                            "Ошибка",
-                            error.errorMessage
+        if(internetConnectionState.value) {
+            getNotesByTitleUseCase(title)
+                .onEach { state ->
+                    remindsState.emit(state)
+                    state.onSuccess { remindsModel ->
+                        val sortedModel = remindsModel.reminds
+                            .sortedBy { it.date }
+                            .sortedBy { it.isNotified }
+                        remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
+                    }
+                    state.onError { error ->
+                        networkErrorResult.postEvent(
+                            NetworkErrorEvents.ShowErrorDialog(
+                                "Ошибка",
+                                error.errorMessage
+                            )
                         )
-                    )
-                }
-            }.launchIn(viewModelScope)
+                    }
+                }.launchIn(viewModelScope)
+        } else {
+            viewModelScope.launch {
+                searchNotesByTitleFromRoom(title)
+            }
+        }
+
     }
 
     override fun deleteSelectedReminds() {
@@ -149,13 +171,13 @@ class MainNotesViewModelImpl @Inject constructor(
         viewModelScope.launch {
             receiveMessageFromPushResult.events.collect { event ->
                 if (event is ReceiveMessageFromPushEvent.RemindReceived) {
-                    refreshReminds()
+                    refreshNotes()
                 }
             }
         }
     }
 
-    override fun refreshReminds() {
+    override fun refreshNotes() {
         getAllNotes()
     }
 
@@ -174,6 +196,7 @@ class MainNotesViewModelImpl @Inject constructor(
                     remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
                 }
                 state.onError { error ->
+                    getNotesByRoom()
                     networkErrorResult.postEvent(
                         NetworkErrorEvents.ShowErrorDialog(
                             title = "Ошибка",
@@ -184,4 +207,15 @@ class MainNotesViewModelImpl @Inject constructor(
             }.launchIn(viewModelScope)
     }
 
+    private suspend fun getNotesByRoom() {
+        val data = remindsRepository.getAllNotesByRoom()
+            ?.sortedBy { it.date }
+        remindsData.emit(data?.mapToItems(dateTimeFormatter))
+    }
+
+    private suspend fun searchNotesByTitleFromRoom(title: String) {
+        val data = remindsRepository.getNotesByTitleByRoom(title)
+            ?.sortedBy { it.date }
+        remindsData.emit(data?.mapToItems(dateTimeFormatter))
+    }
 }

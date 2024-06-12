@@ -41,4 +41,5 @@
     <string name="confirm_edit">Подтвердить</string>
     <string name="profile">Профиль</string>
     <string name="on_next_onboarding">Дальше</string>
+    <string name="back">Back</string>
 </resources>

@@ -12,6 +12,8 @@ import com.example.reminderapp.domain.model.mapToItems
 import com.example.reminderapp.domain.usecases.DeleteRemindUseCase
 import com.example.reminderapp.domain.usecases.GetAllRemindsUseCase
 import com.example.reminderapp.domain.usecases.GetRemindsByTitleUseCase
+import com.example.reminderapp.repository.PreferencesDataStoreRepository
+import com.example.reminderapp.repository.RemindsRepository
 import com.example.reminderapp.singleresult.NetworkErrorEvents
 import com.example.reminderapp.singleresult.NetworkErrorResult
 import com.example.reminderapp.singleresult.ReceiveMessageFromPushEvent
@@ -23,6 +25,7 @@ import com.example.reminderapp.ui.reminds.edit.EditRemindFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -35,6 +38,7 @@ interface MainRemindsViewModel {
     val remindsData: Flow<List<RemindItem>?>
     val navigationFlow: Flow<Pair<Int?, Any?>?>
     val deleteVisibilityState: Flow<Boolean>
+    val internetConnectionState: Flow<Boolean>
     fun selectedChanged(id: Int)
     fun editRemind(id: Int)
     fun unselectAll()
@@ -51,10 +55,12 @@ class MainRemindsViewModelImpl @Inject constructor(
     private val deleteRemindUseCase: DeleteRemindUseCase,
     private val networkErrorResult: NetworkErrorResult,
     private val searchResult: SearchResult,
-    private val getRemindsByTitleUseCase: GetRemindsByTitleUseCase
+    private val getRemindsByTitleUseCase: GetRemindsByTitleUseCase,
+    private val preferencesRepository: PreferencesDataStoreRepository,
+    private val remindsRepository: RemindsRepository
 ) : MainRemindsViewModel, ViewModel() {
 
-
+    override val internetConnectionState: MutableStateFlow<Boolean> = MutableStateFlow(true)
     override val remindsData: MutableStateFlow<List<RemindItem>?> = MutableStateFlow(null)
     private val remindsState: MutableStateFlow<State<RemindsModel>> = MutableStateFlow(State.Idle)
     override val navigationFlow: MutableStateFlow<Pair<Int?, Any?>?> = MutableStateFlow(null)
@@ -67,6 +73,15 @@ class MainRemindsViewModelImpl @Inject constructor(
         getAllReminds()
         subscribeOnRemindDeleteFromPushResult()
         subscribeOnSearchResult()
+        subscribeOnInternetConnectionStream()
+    }
+
+    private fun subscribeOnInternetConnectionStream() {
+        preferencesRepository.internetConnectionStream
+            .distinctUntilChanged()
+            .onEach {
+                internetConnectionState.emit(it)
+            }.launchIn(viewModelScope)
     }
 
     private fun subscribeOnSearchResult() {
@@ -80,24 +95,31 @@ class MainRemindsViewModelImpl @Inject constructor(
     }
 
     private fun getRemindsByTitle(title: String) {
-        getRemindsByTitleUseCase(title)
-            .onEach { state ->
-                remindsState.emit(state)
-                state.onSuccess { remindsModel ->
-                    val sortedModel = remindsModel.reminds
-                        .sortedBy { it.date }
-                        .sortedBy { it.isNotified }
-                    remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
-                }
-                state.onError { error ->
-                    networkErrorResult.postEvent(
-                        NetworkErrorEvents.ShowErrorDialog(
-                            "Ошибка",
-                            error.errorMessage
+        if(internetConnectionState.value) {
+            getRemindsByTitleUseCase(title)
+                .onEach { state ->
+                    remindsState.emit(state)
+                    state.onSuccess { remindsModel ->
+                        val sortedModel = remindsModel.reminds
+                            .sortedBy { it.date }
+                            .sortedBy { it.isNotified }
+                        remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
+                    }
+                    state.onError { error ->
+                        networkErrorResult.postEvent(
+                            NetworkErrorEvents.ShowErrorDialog(
+                                "Ошибка",
+                                error.errorMessage
+                            )
                         )
-                    )
-                }
-            }.launchIn(viewModelScope)
+                    }
+                }.launchIn(viewModelScope)
+        } else {
+            viewModelScope.launch {
+                searchRemindsByTitleFromRoom(title)
+            }
+        }
+
     }
 
 
@@ -164,24 +186,39 @@ class MainRemindsViewModelImpl @Inject constructor(
     }
 
     private fun getAllReminds() {
-        getAllRemindsUseCase()
-            .onEach { state ->
-                remindsState.emit(state)
-                state.onSuccess { remindsModel ->
-                    val sortedModel = remindsModel.reminds
-                        .sortedBy { it.date }
-                        .sortedBy { it.isNotified }
-                    remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
-                }
-                state.onError { error ->
-                    networkErrorResult.postEvent(
-                        NetworkErrorEvents.ShowErrorDialog(
-                            title = "Ошибка",
-                            message = error.errorMessage
+            getAllRemindsUseCase()
+                .onEach { state ->
+                    remindsState.emit(state)
+                    state.onSuccess { remindsModel ->
+                        val sortedModel = remindsModel.reminds
+                            .sortedBy { it.date }
+                            .sortedBy { it.isNotified }
+                        remindsData.emit(sortedModel.mapToItems(dateTimeFormatter))
+                    }
+                    state.onError { error ->
+                        getRemindsFromRoom()
+                        networkErrorResult.postEvent(
+                            NetworkErrorEvents.ShowErrorDialog(
+                                title = "Ошибка",
+                                message = error.errorMessage
+                            )
                         )
-                    )
-                }
-            }.launchIn(viewModelScope)
+                    }
+                }.launchIn(viewModelScope)
+        }
+
+    private suspend fun getRemindsFromRoom() {
+        val data = remindsRepository.getAllRemindsByRoom()
+            ?.sortedBy { it.date }
+            ?.sortedBy { it.isNotified }
+        remindsData.emit(data?.mapToItems(dateTimeFormatter))
+    }
+
+    private suspend fun searchRemindsByTitleFromRoom(title: String) {
+        val data = remindsRepository.getRemindsByTitleByRoom(title)
+            ?.sortedBy { it.date }
+            ?.sortedBy { it.isNotified }
+        remindsData.emit(data?.mapToItems(dateTimeFormatter))
     }
 
 }

@@ -13,7 +13,7 @@ class GetRemindUseCase @Inject constructor(
 ) {
     operator fun invoke(id: Int): Flow<State<RemindModel>> = flow {
         emit(State.Loading)
-        val result = repository.getRemindId(id)
+        val result = repository.getRemindById(id)
         emit(result.mapToState())
     }
 }

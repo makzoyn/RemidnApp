@@ -60,6 +60,7 @@ class AppActivity : BaseActivity(R.layout.activity_app) {
             networkErrorResult.events.collect { event ->
                 when (event) {
                     is NetworkErrorEvents.ShowErrorDialog -> {
+                        preferencesDataStoreRepository.updateInternetConnectionState(false)
                         showMessage(message = event.message, title = event.title)
                     }
 
@@ -95,6 +96,7 @@ class AppActivity : BaseActivity(R.layout.activity_app) {
 
     private fun onNavigation(navId: Int?) {
         navId?.let {
+            navController?.popBackStack()
             navController?.navigate(navId)
         }
     }
