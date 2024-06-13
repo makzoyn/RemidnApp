@@ -26,6 +26,7 @@ interface AuthRepository {
     ): NetworkResult<TokenModel>
 
     suspend fun getFcmToken(): String?
+    suspend fun getHmsToken(): String?
 
     suspend fun deletePush(
         deletePushRequest: DeletePushRequest
@@ -51,6 +52,16 @@ class AuthRepositoryImpl(
     override suspend fun getFcmToken(): String? {
         return try {
             FirebaseMessaging.getInstance()
+                .token
+                .await()
+        } catch (e: java.lang.Exception) {
+            null
+        }
+    }
+
+    override suspend fun getHmsToken(): String? {
+        return try {
+            HmsMessageService.getInstance()
                 .token
                 .await()
         } catch (e: java.lang.Exception) {

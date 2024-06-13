@@ -22,9 +22,12 @@ interface PreferencesDataStoreRepository {
     val usedDataStore: Flow<String>
     val tokenStream: Flow<String>
     val firebaseTokenStream: Flow<String>
+    val huaweiTokenStream: Flow<String>
     val internetConnectionStream: Flow<Boolean>
     suspend fun fetchFirebaseToken(): String
+    suspend fun fetchHuaweiToken(): String
     suspend fun updateFirebaseToken(token: String)
+    suspend fun updateHuaweiToken(token: String)
     suspend fun updateUserToken(token: String)
     suspend fun getToken(): String
     suspend fun updateInternetConnectionState(haveConnection: Boolean)
@@ -89,6 +92,26 @@ class PreferencesDataStoreRepositoryImpl @Inject constructor(
     override suspend fun updateFirebaseToken(token: String) {
         dataStore.edit { preferences ->
             preferences[FIREBASE_TOKEN_KEY] = token
+        }
+    }
+
+    override val huaweiTokenStream: Flow<String> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[HUAWEI_TOKEN_KEY] ?: ""
+        }
+    override suspend fun fetchHuaweiToken(): String =
+        dataStore.data.first()[HUAWEI_TOKEN_KEY] ?: ""
+
+    override suspend fun updateHuaweiToken(token: String) {
+        dataStore.edit { preferences ->
+            preferences[HUAWEI_TOKEN_KEY] = token
         }
     }
 
@@ -173,6 +196,7 @@ class PreferencesDataStoreRepositoryImpl @Inject constructor(
     companion object PreferencesKeys {
         private val USER_TOKEN = stringPreferencesKey("USER_TOKEN")
         private val FIREBASE_TOKEN_KEY = stringPreferencesKey("FIREBASE_TOKEN_KEY")
+        private val HUAWEI_TOKEN_KEY = stringPreferencesKey("HUAWEI_TOKEN_KEY")
         private val TAB_KEY = stringPreferencesKey("TAB_KEY")
         private val ONBOARDING_KEY = booleanPreferencesKey("ONBOARDING_KEY")
         private val INTERNET_CONNECTION_STATE = booleanPreferencesKey("INTERNET_CONNECTION_STATE")
